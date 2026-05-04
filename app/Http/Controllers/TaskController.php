@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers; // ✅ FIX
 
+use App\Http\Controllers\Controller; // ✅ TAMBAHKAN INI
 use App\Models\Task;
 use App\Models\Project;
 use App\Models\User;

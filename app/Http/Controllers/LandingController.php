@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller; // WAJIB ADA
+
 /**
  * LandingController - Controller untuk halaman landing page
  */
