@@ -35,46 +35,35 @@
 </head>
 <body class="bg-gray-50">
     <!-- Navbar -->
-    <nav class="bg-white shadow-md fixed w-full z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="{{ route('landing') }}" class="flex items-center">
-                        <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center mr-3">
-                            <i class="fas fa-tasks text-white text-lg"></i>
-                        </div>
-                        <span class="text-xl font-bold text-gray-800">Bagi<span class="text-indigo-600">Tugas</span></span>
-                    </a>
-                </div>
-                
-                <!-- Navigation Links -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="{{ route('landing') }}" class="text-gray-600 hover:text-indigo-600 font-medium transition">Beranda</a>
-                    <a href="#about" class="text-gray-600 hover:text-indigo-600 font-medium transition">Tentang Kami</a>
-                    <a href="#contact" class="text-gray-600 hover:text-indigo-600 font-medium transition">Contact</a>
-                </div>
-                
-                <!-- Auth Buttons -->
-                <div class="flex items-center space-x-4">
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-indigo-600 font-medium transition">Dashboard</a>
-                        <form action="{{ route('logout') }}" method="POST" class="inline">
-                            @csrf
-                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition">
-                                Keluar
-                            </button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}" class="text-indigo-600 hover:text-indigo-700 font-medium transition">Masuk</a>
-                        <a href="{{ route('register') }}" class="gradient-bg hover:opacity-90 text-white px-4 py-2 rounded-lg font-medium transition">
-                            Daftar
-                        </a>
-                    @endauth
-                </div>
-            </div>
+    <nav class="absolute top-0 left-0 w-full z-50">
+    <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center text-white">
+
+        <!-- Logo -->
+        <a href="{{ route('landing') }}" class="text-xl font-bold">
+            BagiTugas.
+        </a>
+
+        <!-- Menu -->
+        <div class="hidden md:flex items-center gap-8">
+            <a href="{{ route('landing') }}" class="hover:opacity-80 transition">Beranda</a>
+            <a href="#about" class="hover:opacity-80 transition">Tentang Kami</a>
+            <a href="#contact" class="hover:opacity-80 transition">Contact</a>
+
+            @auth
+                <a href="{{ route('dashboard') }}" 
+                   class="bg-blue-600 px-5 py-2 rounded-full hover:bg-blue-700 transition">
+                   Dashboard
+                </a>
+            @else
+                <a href="{{ route('login') }}" 
+                   class="bg-blue-600 px-5 py-2 rounded-full hover:bg-blue-700 transition">
+                   Masuk
+                </a>
+            @endauth
         </div>
-    </nav>
+
+    </div>
+</nav>
 
     <!-- Main Content -->
     <main>
