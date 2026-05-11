@@ -211,8 +211,6 @@
     <a href="{{ route('tasks.create') }}" class="w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition" title="Tambah Tugas">
         <i class="fas fa-plus text-xl"></i>
     </a>
-    <a href="{{ route('projects.create') }}" class="w-14 h-14 gradient-bg hover:opacity-90 text-white rounded-full shadow-lg flex items-center justify-center transition" title="Tambah Proyek">
-        <i class="fas fa-folder-plus text-xl"></i>
-    </a>
+
 </div>
 @endsection

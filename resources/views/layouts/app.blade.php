@@ -35,33 +35,47 @@
 </head>
 <body class="bg-gray-50">
     <!-- Navbar -->
-    <nav class="absolute top-0 left-0 w-full z-50">
-    <div class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center text-white">
+   <nav class="absolute top-0 left-0 w-full z-50">
+    <div class="flex justify-between items-center px-[80px] py-[25px]">
 
         <!-- Logo -->
-        <a href="{{ route('landing') }}" class="text-xl font-bold">
+        <a href="{{ route('landing') }}" 
+           class="text-white text-[1.8rem] font-bold">
             BagiTugas.
         </a>
 
         <!-- Menu -->
-        <div class="hidden md:flex items-center gap-8">
-            <a href="{{ route('landing') }}" class="hover:opacity-80 transition">Beranda</a>
-            <a href="#about" class="hover:opacity-80 transition">Tentang Kami</a>
-            <a href="#contact" class="hover:opacity-80 transition">Contact</a>
+        <ul class="hidden md:flex items-center gap-[40px]">
 
-            @auth
-                <a href="{{ route('dashboard') }}" 
-                   class="bg-blue-600 px-5 py-2 rounded-full hover:bg-blue-700 transition">
-                   Dashboard
+            <li>
+                <a href="{{ route('landing') }}" 
+                   class="text-white text-[1.1rem] font-bold">
+                   Beranda
                 </a>
-            @else
-                <a href="{{ route('login') }}" 
-                   class="bg-blue-600 px-5 py-2 rounded-full hover:bg-blue-700 transition">
+            </li>
+
+            <li>
+                <a href="#" 
+                   class="text-white text-[1.1rem] font-semibold">
+                   Tentang Kami
+                </a>
+            </li>
+
+            <li>
+                <a href="#" 
+                   class="text-white text-[1.1rem] font-semibold">
+                   Contact
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('login') }}"
+                   class="bg-[#2F5CB4] text-white px-[30px] py-[10px] rounded-full text-[1.1rem] font-semibold">
                    Masuk
                 </a>
-            @endauth
-        </div>
+            </li>
 
+        </ul>
     </div>
 </nav>
 

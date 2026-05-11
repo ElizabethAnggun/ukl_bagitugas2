@@ -1,3 +1,5 @@
+@extends('layouts.app')
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -26,36 +28,7 @@
             display: flex;
             flex-direction: column;
         }
-        /* Navbar Styling */
-        .custom-navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 25px 80px;
-        }
-        .navbar-brand {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #ffffff;
-            text-decoration: none;
-        }
-        .navbar-nav {
-            display: flex;
-            align-items: center;
-            gap: 40px;
-            list-style: none;
-        }
-        .navbar-nav a {
-            color: #ffffff;
-            text-decoration: none;
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        .nav-btn-masuk {
-            background-color: #2F5CB4; 
-            padding: 10px 30px;
-            border-radius: 50px;
-        }
+        
         /* Hero Styling */
         .hero-section {
             flex: 1;
@@ -105,15 +78,6 @@
 <body>
 
     <div class="bg-gradient-main">
-        <nav class="custom-navbar">
-            <a href="#" class="navbar-brand">BagiTugas.</a>
-            <ul class="navbar-nav">
-                <li><a href="#">Beranda</a></li>
-                <li><a href="#">Tentang Kami</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="{{ route('login') }}" class="nav-btn-masuk">Masuk</a></li>
-            </ul>
-        </nav>
 
         <section class="hero-section">
             <div class="hero-content">
