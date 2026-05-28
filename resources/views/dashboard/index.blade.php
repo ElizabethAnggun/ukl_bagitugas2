@@ -149,7 +149,7 @@
                         <div class="flex items-center p-3 bg-gray-50 rounded-lg">
                             <div class="w-2 h-2 rounded-full mr-3 
                                 {{ $task->status == 'selesai' ? 'bg-green-500' : '' }}
-                                {{ $task->status == 'terlambat' ? 'bg-red-500' : '' }}
+                                {{ $task->isLate() && $task->status != 'selesai' ? 'bg-red-500' : '' }}
                                 {{ $task->status == 'berjalan' ? 'bg-blue-500' : '' }}
                                 {{ $task->status == 'belum_mulai' ? 'bg-gray-400' : '' }}">
                             </div>

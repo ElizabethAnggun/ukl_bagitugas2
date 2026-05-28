@@ -29,7 +29,7 @@
         <p class="text-sm text-green-600">Selesai</p>
     </div>
     <div class="bg-white rounded-xl p-4 shadow-sm text-center">
-        <p class="text-2xl font-bold text-red-600">{{ $tasks->where('status', 'terlambat')->count() }}</p>
+        <p class="text-2xl font-bold text-red-600">{{ $tasks->filter->isLate()->count() }}</p>
         <p class="text-sm text-red-600">Terlambat</p>
     </div>
 </div>
@@ -83,26 +83,51 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3">
-                                <select onchange="updateStatus({{ $task->id }}, this.value)" 
-                                        class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer {{ $task->status_color }}">
-                                    <option value="belum_mulai" {{ $task->status == 'belum_mulai' ? 'selected' : '' }}>Belum Mulai</option>
-                                    <option value="berjalan" {{ $task->status == 'berjalan' ? 'selected' : '' }}>Berjalan</option>
-                                    <option value="selesai" {{ $task->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                    <option value="terlambat" {{ $task->status == 'terlambat' ? 'selected' : '' }}>Terlambat</option>
-                                </select>
+                                <div class="flex flex-col">
+                                    @can('update', $task)
+                                        <select onchange="updateStatus({{ $task->id }}, this.value)" 
+                                                class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer {{ $task->status_color }}">
+                                            <option value="belum_mulai" {{ $task->status == 'belum_mulai' ? 'selected' : '' }}>Belum Mulai</option>
+                                            <option value="berjalan" {{ $task->status == 'berjalan' ? 'selected' : '' }}>Berjalan</option>
+                                            <option value="selesai" {{ $task->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                        </select>
+                                    @else
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium {{ $task->status_color }}">
+                                            {{ $task->status_label }}
+                                        </span>
+                                    @endcan
+                                    
+                                    @if($task->isLate())
+                                        <span class="text-[10px] text-red-500 font-bold mt-1 uppercase ml-2">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>Terlambat
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('tasks.edit', $task) }}" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-lg flex items-center justify-center hover:bg-yellow-200 transition" title="Edit">
-                                        <i class="fas fa-edit text-sm"></i>
+                                    <a href="{{ route('tasks.show', $task) }}" class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-200 transition" title="Detail & Diskusi">
+                                        <i class="fas fa-comments text-sm"></i>
                                     </a>
-                                    <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline" onsubmit="return confirm('Hapus tugas ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="w-8 h-8 bg-red-100 text-red-600 rounded-lg flex items-center justify-center hover:bg-red-200 transition" title="Hapus">
-                                            <i class="fas fa-trash text-sm"></i>
-                                        </button>
-                                    </form>
+                                    @can('update', $task)
+                                        <a href="{{ route('tasks.edit', $task) }}" class="w-8 h-8 bg-yellow-100 text-yellow-600 rounded-lg flex items-center justify-center hover:bg-yellow-200 transition" title="Edit">
+                                            <i class="fas fa-edit text-sm"></i>
+                                        </a>
+                                    @endcan
+
+                                    @can('delete', $task)
+                                        <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline" onsubmit="return confirm('Hapus tugas ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="w-8 h-8 bg-red-100 text-red-600 rounded-lg flex items-center justify-center hover:bg-red-200 transition" title="Hapus">
+                                                <i class="fas fa-trash text-sm"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
+                                    
+                                    @if(!Auth::user()->can('update', $task) && !Auth::user()->can('delete', $task))
+                                        <span class="text-xs text-gray-400 italic">Read Only</span>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

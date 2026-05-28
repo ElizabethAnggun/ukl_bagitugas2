@@ -67,4 +67,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(ActivityLog::class);
     }
+
+    /**
+     * Relasi: User memiliki banyak komentar
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Relasi: User memiliki banyak notifikasi
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
 }

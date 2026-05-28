@@ -7,6 +7,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,13 +43,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('projects', ProjectController::class);
-    // Route::prefix('projects')->name('projects')->group(function () {
-    //     Route::get('/{project}', [ProjectController::class, 'show'])->name('show');
-    //     Route::get('/{project}/edit', [ProjectController::class, 'edit'])->name('edit');
-    //     Route::put('/{project}', [ProjectController::class, 'update'])->name('update');
-    //     Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('destroy');
-    // });
-    // Route::get('/projects', [ProjectController::class, 'index'])->name('index');
    
     // ==================== TASK ROUTES ====================
     // CRUD Tugas
@@ -63,6 +58,20 @@ Route::middleware(['auth'])->group(function () {
         // Update status via AJAX
         Route::post('/{task}/status', [TaskController::class, 'updateStatus'])->name('updateStatus');
     });
+
+    // Bukti Pengerjaan (Di luar grup tasks. agar name sesuai route('uploadProof'))
+    Route::post('/tasks/{task}/proof', [TaskController::class, 'uploadProof'])->name('uploadProof');
+    Route::get('/tasks/{task}/proof/download', [TaskController::class, 'downloadProof'])->name('downloadProof');
+    Route::delete('/tasks/{task}/proof', [TaskController::class, 'deleteProof'])->name('deleteProof');
+
+    // ==================== COMMENT ROUTES ====================
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    
+    // ==================== NOTIFICATION ROUTES ====================
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
     
     // ==================== ACTIVITY LOG ROUTES ====================
     // Riwayat Aktivitas

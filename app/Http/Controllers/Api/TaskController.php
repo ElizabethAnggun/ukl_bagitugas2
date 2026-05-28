@@ -28,7 +28,7 @@ class ProjectController extends Controller
             'user_id' => 'required|exists:users,id', // Harus ada user_id pemilik[cite: 2]
         ]);
 
-        $project = Project::create($validated);[cite: 6]
+        $project = Project::create($validated);
 
         return response()->json([
             'message' => 'Proyek berhasil dibuat',

@@ -60,7 +60,7 @@
                 <!-- Remember Me -->
                 <div class="flex items-center justify-between mb-6">
                     <label class="flex items-center">
-                        <input type="checkbox" name="remember" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <input type="checkbox" name="remember" class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" checked>
                         <span class="ml-2 text-sm text-gray-600">Ingat saya</span>
                     </label>
                 </div>

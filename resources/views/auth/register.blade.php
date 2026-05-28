@@ -101,7 +101,7 @@
                     <!-- Button -->
                     <button type="submit"
                         class="w-full bg-[#2F5CB4] hover:bg-[#264d96] text-white py-4 rounded-2xl text-2xl font-bold shadow-xl transition duration-300">
-                        Lanjut
+                        Daftar
                     </button>
                 </form>
 

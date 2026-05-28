@@ -86,10 +86,8 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Login otomatis setelah register
-        Auth::login($user);
-
-        return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di BagiTugas.');
+        // Redirect ke halaman login setelah register
+        return redirect()->route('login')->with('success', 'Akun berhasil dibuat! Silakan login untuk melanjutkan.');
     }
 
     /**

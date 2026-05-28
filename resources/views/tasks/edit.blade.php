@@ -50,9 +50,13 @@
                     id="project_id" 
                     class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('project_id') border-red-500 @enderror"
                     required>
-                <option value="">Pilih Proyek</option>
+                @if($projects->count() > 1)
+                    <option value="">Pilih Proyek</option>
+                @endif
+                
                 @foreach($projects as $project)
-                    <option value="{{ $project->id }}" {{ old('project_id', $task->project_id) == $project->id ? 'selected' : '' }}>
+                    <option value="{{ $project->id }}" 
+                        {{ old('project_id', $task->project_id) == $project->id ? 'selected' : '' }}>
                         {{ $project->name }}
                     </option>
                 @endforeach
@@ -111,7 +115,6 @@
                 <option value="belum_mulai" {{ old('status', $task->status) == 'belum_mulai' ? 'selected' : '' }}>Belum Mulai</option>
                 <option value="berjalan" {{ old('status', $task->status) == 'berjalan' ? 'selected' : '' }}>Berjalan</option>
                 <option value="selesai" {{ old('status', $task->status) == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                <option value="terlambat" {{ old('status', $task->status) == 'terlambat' ? 'selected' : '' }}>Terlambat</option>
             </select>
             @error('status')
                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

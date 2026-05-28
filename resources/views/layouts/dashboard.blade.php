@@ -98,6 +98,22 @@
                             <span>Riwayat</span>
                         </a>
                     </li>
+                    <li>
+                        <a href="{{ route('notifications.index') }}" class="sidebar-link flex items-center px-6 py-3 text-gray-600 {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
+                            <div class="relative">
+                                <i class="fas fa-bell w-6"></i>
+                                @php
+                                    $unreadCount = Auth::user()->notifications()->where('is_read', false)->count();
+                                @endphp
+                                @if($unreadCount > 0)
+                                    <span class="absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                                    </span>
+                                @endif
+                            </div>
+                            <span>Notifikasi</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             
@@ -153,6 +169,14 @@
                         </a>
                         <a href="{{ route('activities.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
                             <i class="fas fa-history w-6"></i> Riwayat
+                        </a>
+                        <a href="{{ route('notifications.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
+                            <i class="fas fa-bell w-6"></i> Notifikasi
+                            @if($unreadCount > 0)
+                                <span class="ml-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                                    {{ $unreadCount }}
+                                </span>
+                            @endif
                         </a>
                     </nav>
                 </div>

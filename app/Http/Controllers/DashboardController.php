@@ -20,22 +20,30 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Hitung statistik
-        $totalProjects = Project::where('user_id', $user->id)->count();
-        $totalTasks = Task::whereHas('project', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->count();
+        // Hitung statistik (Proyek di mana user terlibat)
+        $projectQuery = Project::where('user_id', $user->id)
+            ->orWhereHas('tasks', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->distinct();
+
+        $totalProjects = $projectQuery->count();
         
-        $completedTasks = Task::whereHas('project', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->where('status', 'selesai')->count();
+        $taskQuery = Task::where(function($query) use ($user) {
+            $query->where('user_id', $user->id)
+                  ->orWhereHas('project', function ($q) use ($user) {
+                      $q->where('user_id', $user->id);
+                  });
+        });
+
+        $totalTasks = (clone $taskQuery)->count();
+        $completedTasks = (clone $taskQuery)->where('status', 'selesai')->count();
         
-        $lateTasks = Task::whereHas('project', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->where('status', 'terlambat')->count();
+        // Hitung tugas terlambat
+        $lateTasks = (clone $taskQuery)->get()->filter->isLate()->count();
 
         // Ambil proyek dengan progress
-        $projects = Project::where('user_id', $user->id)
+        $projects = (clone $projectQuery)
             ->withCount('tasks')
             ->with(['tasks' => function ($query) {
                 $query->where('status', 'selesai');
@@ -50,9 +58,7 @@ class DashboardController extends Controller
         }
 
         // Ambil tugas terbaru
-        $recentTasks = Task::whereHas('project', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
+        $recentTasks = (clone $taskQuery)
         ->with(['project', 'user'])
         ->latest()
         ->take(5)

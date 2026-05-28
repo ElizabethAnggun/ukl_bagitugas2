@@ -23,6 +23,8 @@ class Task extends Model
         'user_id',
         'deadline',
         'status',
+        'proof_file',
+        'completed_at',
     ];
 
     /**
@@ -30,6 +32,8 @@ class Task extends Model
      */
     protected $casts = [
         'deadline' => 'date',
+        'completed_at' => 'datetime',
+        'proof_file' => 'array',
     ];
 
     /**
@@ -59,28 +63,23 @@ class Task extends Model
     }
 
     /**
+     * Relasi: Task memiliki banyak komentar
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
      * Cek apakah tugas terlambat
      * @return bool
      */
     public function isLate(): bool
     {
-        // Jika sudah selesai, tidak terlambat
-        if ($this->status === 'selesai') {
-            return false;
-        }
+        // Bandingkan deadline dengan hari ini atau waktu update terakhir jika sudah selesai
+        $compareDate = ($this->status === 'selesai') ? $this->updated_at : Carbon::now();
         
-        // Bandingkan deadline dengan hari ini
-        return Carbon::now()->gt($this->deadline);
-    }
-
-    /**
-     * Update status otomatis jika terlambat
-     */
-    public function updateStatusIfLate(): void
-    {
-        if ($this->isLate() && $this->status !== 'terlambat') {
-            $this->update(['status' => 'terlambat']);
-        }
+        return $compareDate->gt($this->deadline->endOfDay());
     }
 
     /**
@@ -89,11 +88,14 @@ class Task extends Model
      */
     public function getStatusColorAttribute(): string
     {
+        if ($this->isLate() && $this->status !== 'selesai') {
+            return 'bg-red-100 text-red-800';
+        }
+
         return match($this->status) {
             'belum_mulai' => 'bg-gray-100 text-gray-800',
             'berjalan' => 'bg-blue-100 text-blue-800',
             'selesai' => 'bg-green-100 text-green-800',
-            'terlambat' => 'bg-red-100 text-red-800',
             default => 'bg-gray-100 text-gray-800',
         };
     }
@@ -103,11 +105,18 @@ class Task extends Model
      */
     public function getStatusLabelAttribute(): string
     {
+        if ($this->isLate() && $this->status !== 'selesai') {
+            return 'Terlambat';
+        }
+
+        if ($this->isLate() && $this->status === 'selesai') {
+            return 'Selesai (Terlambat)';
+        }
+
         return match($this->status) {
             'belum_mulai' => 'Belum Mulai',
             'berjalan' => 'Berjalan',
             'selesai' => 'Selesai',
-            'terlambat' => 'Terlambat',
             default => 'Unknown',
         };
     }

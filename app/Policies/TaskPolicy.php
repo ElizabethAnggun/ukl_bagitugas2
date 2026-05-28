@@ -21,11 +21,19 @@ class TaskPolicy
 
     /**
      * Determine whether the user can view the model.
-     * User bisa melihat tugas dari proyek miliknya
+     * Hanya anggota proyek (Owner atau yang punya tugas di proyek tersebut) yang bisa melihat detail
      */
     public function view(User $user, Task $task): bool
     {
-        return $user->id === $task->project->user_id;
+        // Cek apakah user adalah owner proyek
+        if ($user->id === $task->project->user_id) {
+            return true;
+        }
+
+        // Cek apakah user memiliki tugas apa pun di proyek yang sama
+        return \App\Models\Task::where('project_id', $task->project_id)
+            ->where('user_id', $user->id)
+            ->exists();
     }
 
     /**
@@ -38,19 +46,19 @@ class TaskPolicy
 
     /**
      * Determine whether the user can update the model.
-     * User bisa mengedit tugas dari proyek miliknya
+     * Hanya pemilik proyek (yang ngasih tugas) dan user yang ditugaskan yang bisa edit
      */
     public function update(User $user, Task $task): bool
     {
-        return $user->id === $task->project->user_id;
+        return $user->id === $task->project->user_id || $user->id === $task->user_id;
     }
 
     /**
      * Determine whether the user can delete the model.
-     * User bisa menghapus tugas dari proyek miliknya
+     * Hanya pemilik proyek (yang ngasih tugas) dan user yang ditugaskan yang bisa hapus
      */
     public function delete(User $user, Task $task): bool
     {
-        return $user->id === $task->project->user_id;
+        return $user->id === $task->project->user_id || $user->id === $task->user_id;
     }
 }
