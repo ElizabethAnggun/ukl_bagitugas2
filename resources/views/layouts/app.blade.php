@@ -55,16 +55,16 @@
             </li>
 
             <li>
-                <a href="#" 
-                   class="text-white text-[1.1rem] font-semibold">
-                   Tentang Kami
+                <a href="{{ route('about') }}" 
+                class="text-white text-[1.1rem] font-semibold">
+                Tentang Kami
                 </a>
             </li>
 
             <li>
-                <a href="#" 
-                   class="text-white text-[1.1rem] font-semibold">
-                   Contact
+                <a href="{{ route('contact') }}" 
+                class="text-white text-[1.1rem] font-semibold">
+                Contact
                 </a>
             </li>
 

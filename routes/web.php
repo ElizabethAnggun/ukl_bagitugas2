@@ -25,6 +25,8 @@ use App\Http\Controllers\NotificationController;
 
 // Landing Page
 Route::get('/', [LandingController::class, 'index'])->name('landing');
+Route::view('/about', 'about')->name('about');
+Route::view('/contact', 'contact')->name('contact');
 
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

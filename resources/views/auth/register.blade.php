@@ -16,7 +16,7 @@
                 <img src="{{ asset('images/icon_ukl_v2.png') }}" 
                     alt="Illustration" 
                     class="w-[430px] translate-y-2 drop-shadow-[0_0_45px_rgba(255,255,255,0.25)]">
-        </div>
+        </div>[]
 
         <!-- RIGHT SIDE -->
         <div class="w-full md:w-1/2 flex justify-center">
