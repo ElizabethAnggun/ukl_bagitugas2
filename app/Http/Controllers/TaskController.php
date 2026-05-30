@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\User;
 use App\Models\Friend;
 use App\Models\ActivityLog;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -25,19 +26,12 @@ class TaskController extends Controller
     {
         $user = Auth::user();
         
-        // Ambil tugas:
-        // 1. Dari proyek milik user yang login
-        // 2. ATAU tugas yang ditugaskan langsung ke user yang login
-        // Ini memastikan user hanya melihat daftar tugas dari proyek yang mereka ikuti
-        $tasks = Task::where(function($query) use ($user) {
-            $query->where('user_id', $user->id)
-                  ->orWhereHas('project', function ($q) use ($user) {
-                      $q->where('user_id', $user->id);
-                  });
-        })
-        ->with(['project', 'user'])
-        ->latest()
-        ->get();
+        // Menampilkan tugas yang ditugaskan ke user (termasuk dari owner lain)
+        // Dan menyembunyikan tugas yang diberikan user ke orang lain
+        $tasks = Task::where('user_id', $user->id)
+            ->with(['project', 'user'])
+            ->latest()
+            ->get();
 
         // Ambil semua proyek di mana user terlibat untuk filter
         $projects = Project::where('user_id', $user->id)
@@ -124,6 +118,17 @@ class TaskController extends Controller
             'deadline' => $validated['deadline'],
             'status' => $validated['status'],
         ]);
+
+        // 4. Kirim Notifikasi ke penerima tugas (jika bukan diri sendiri)
+        if ($assignee->id !== $user->id) {
+            Notification::create([
+                'user_id' => $assignee->id,
+                'title' => 'Tugas Baru Ditugaskan',
+                'message' => "Anda telah diberikan tugas baru: \"{$task->title}\" dalam proyek \"{$project->name}\" oleh {$user->name}.",
+                'link' => route('tasks.show', $task->id),
+                'is_read' => false,
+            ]);
+        }
 
         return redirect()->route('tasks.index')->with('success', 'Tugas berhasil dibuat!');
     }
@@ -217,7 +222,19 @@ class TaskController extends Controller
         $updateData['user_id'] = $assignee->id;
         unset($updateData['email']);
 
+        $oldAssigneeId = $task->user_id;
         $task->update($updateData);
+
+        // Jika penerima tugas berubah, kirim notifikasi ke penerima baru
+        if ($assignee->id !== $oldAssigneeId && $assignee->id !== $user->id) {
+            Notification::create([
+                'user_id' => $assignee->id,
+                'title' => 'Tugas Ditugaskan ke Anda',
+                'message' => "Tugas \"{$task->title}\" dalam proyek \"{$task->project->name}\" kini ditugaskan kepada Anda oleh {$user->name}.",
+                'link' => route('tasks.show', $task->id),
+                'is_read' => false,
+            ]);
+        }
 
         // Jika status berubah menjadi selesai, buat log (cek jika terlambat)
         if ($oldStatus !== $newStatus && $newStatus === 'selesai') {

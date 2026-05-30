@@ -10,7 +10,15 @@ class ProjectAPIController extends Controller
 {
     public function index()
     {
-        $projects = Project::with('user')->get();
+        $user = auth()->user();
+        
+        $projects = Project::where('user_id', $user->id)
+            ->orWhereHas('tasks', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->with('user')
+            ->get();
+
         return response()->json([
             'success' => true,
             'data' => $projects

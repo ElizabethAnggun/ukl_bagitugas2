@@ -20,7 +20,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Hitung statistik (Proyek di mana user terlibat)
+        // Hitung statistik Proyek di mana user terlibat (Owner atau yang ditugaskan)
         $projectQuery = Project::where('user_id', $user->id)
             ->orWhereHas('tasks', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
@@ -29,21 +29,18 @@ class DashboardController extends Controller
 
         $totalProjects = $projectQuery->count();
         
-        $taskQuery = Task::where(function($query) use ($user) {
-            $query->where('user_id', $user->id)
-                  ->orWhereHas('project', function ($q) use ($user) {
-                      $q->where('user_id', $user->id);
-                  });
-        });
+        // HANYA AMBIL TUGAS YANG DITUGASKAN KE USER LOGIN (Tujuan Dashboard Baru)
+        $taskQuery = Task::where('user_id', $user->id);
 
         $totalTasks = (clone $taskQuery)->count();
+        $runningTasks = (clone $taskQuery)->where('status', 'berjalan')->count();
         $completedTasks = (clone $taskQuery)->where('status', 'selesai')->count();
         
-        // Hitung tugas terlambat
+        // Hitung tugas terlambat (tugas pribadi)
         $lateTasks = (clone $taskQuery)->get()->filter->isLate()->count();
 
-        // Ambil proyek dengan progress
-        $projects = (clone $projectQuery)
+        // Ambil proyek dengan progress (tetap tampilkan proyek yang diikuti)
+        $projects = $projectQuery
             ->withCount('tasks')
             ->with(['tasks' => function ($query) {
                 $query->where('status', 'selesai');
@@ -52,34 +49,30 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Hitung progress untuk setiap proyek
-        foreach ($projects as $project) {
-            $project->progress = $project->getProgressAttribute();
-        }
-
-        // Ambil tugas terbaru
+        // Ambil tugas terbaru (Hanya tugas saya)
         $recentTasks = (clone $taskQuery)
-        ->with(['project', 'user'])
-        ->latest()
-        ->take(5)
-        ->get();
-
-        // Ambil aktivitas terbaru
-        $activities = ActivityLog::where('user_id', $user->id)
-            ->with(['task', 'task.project'])
+            ->with(['project', 'user'])
             ->latest()
-            ->take(10)
+            ->take(5)
+            ->get();
+
+        // Ambil riwayat aktivitas terbaru
+        $recentActivities = ActivityLog::where('user_id', $user->id)
+            ->with('task')
+            ->latest()
+            ->take(4)
             ->get();
 
         return view('dashboard.index', compact(
             'user',
-            'totalProjects',
-            'totalTasks',
-            'completedTasks',
-            'lateTasks',
-            'projects',
+            'totalProjects', 
+            'totalTasks', 
+            'runningTasks', 
+            'completedTasks', 
+            'lateTasks', 
+            'projects', 
             'recentTasks',
-            'activities'
+            'recentActivities'
         ));
     }
 }

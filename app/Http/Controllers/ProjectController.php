@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Project;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
@@ -12,7 +13,16 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::with('user')->latest()->get();
+        $user = Auth::user();
+
+        // Hanya menampilkan proyek di mana user adalah owner atau anggota (punya tugas)
+        $projects = Project::where('user_id', $user->id)
+            ->orWhereHas('tasks', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->with('user')
+            ->latest()
+            ->get();
 
         return view('projects.index', compact('projects'));
     }
@@ -50,11 +60,36 @@ class ProjectController extends Controller
     /**
      * Menampilkan detail proyek
      */
-    public function show($id)
+    public function show(Project $project)
     {
-        $project = Project::with(['user', 'tasks'])->findOrFail($id);
+        $this->authorize('view', $project);
+        
+        $user = Auth::user();
+        $isOwner = $project->user_id === $user->id;
 
-        return view('projects.show', compact('project'));
+        // Load relasi tugas
+        $project->load(['tasks.user', 'user']);
+
+        // Hitung statistik Proyek (untuk Owner)
+        $stats = null;
+        if ($isOwner) {
+            $totalTasks = $project->tasks->count();
+            $completedTasks = $project->tasks->where('status', 'selesai')->count();
+            
+            $stats = [
+                'total' => $totalTasks,
+                'belum_mulai' => $project->tasks->where('status', 'belum_mulai')->count(),
+                'berjalan' => $project->tasks->where('status', 'berjalan')->count(),
+                'selesai' => $completedTasks,
+                'terlambat' => $project->tasks->filter->isLate()->count(),
+                'progress' => $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0
+            ];
+        }
+
+        // Filter tugas untuk User biasa (hanya tugas miliknya)
+        $tasks = $isOwner ? $project->tasks : $project->tasks->where('user_id', $user->id);
+
+        return view('projects.show', compact('project', 'tasks', 'isOwner', 'stats'));
     }
 
     /**

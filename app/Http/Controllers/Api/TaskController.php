@@ -10,8 +10,16 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        // Mengambil semua project beserta data user pemiliknya[cite: 6, 8]
-        $projects = Project::with('user')->get();
+        $user = auth()->user();
+
+        // Mengambil project di mana user adalah owner atau anggota
+        $projects = Project::where('user_id', $user->id)
+            ->orWhereHas('tasks', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->with('user')
+            ->get();
+
         return response()->json([
             'success' => true,
             'data' => $projects
