@@ -9,6 +9,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\FriendController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,6 +76,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
     
+    // ==================== FRIEND ROUTES ====================
+    Route::prefix('friends')->name('friends.')->group(function () {
+        Route::get('/', [FriendController::class, 'index'])->name('index');
+        Route::post('/request', [FriendController::class, 'sendRequest'])->name('request');
+        Route::post('/{friend}/accept', [FriendController::class, 'acceptRequest'])->name('accept');
+        Route::post('/{friend}/reject', [FriendController::class, 'rejectRequest'])->name('reject');
+        Route::delete('/{user}/unfriend', [FriendController::class, 'unfriend'])->name('unfriend');
+    });
+
     // ==================== ACTIVITY LOG ROUTES ====================
     // Riwayat Aktivitas
     Route::prefix('activities')->name('activities.')->group(function () {

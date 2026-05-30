@@ -31,9 +31,7 @@ class TaskPolicy
         }
 
         // Cek apakah user memiliki tugas apa pun di proyek yang sama
-        return \App\Models\Task::where('project_id', $task->project_id)
-            ->where('user_id', $user->id)
-            ->exists();
+        return $task->project->tasks()->where('user_id', $user->id)->exists();
     }
 
     /**

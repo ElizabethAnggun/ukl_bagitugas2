@@ -21,11 +21,17 @@ class ProjectPolicy
 
     /**
      * Determine whether the user can view the model.
-     * User hanya bisa melihat proyek miliknya sendiri
+     * User bisa melihat proyek jika dia Owner proyek ATAU memiliki tugas di proyek tersebut
      */
     public function view(User $user, Project $project): bool
     {
-        return $user->id === $project->user_id;
+        // Cek jika owner
+        if ($user->id === $project->user_id) {
+            return true;
+        }
+
+        // Cek jika memiliki tugas di proyek ini
+        return $project->tasks()->where('user_id', $user->id)->exists();
     }
 
     /**

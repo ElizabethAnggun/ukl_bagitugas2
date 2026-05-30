@@ -83,4 +83,51 @@ class User extends Authenticatable
     {
         return $this->hasMany(Notification::class);
     }
+
+    /**
+     * Permintaan pertemanan yang dikirim
+     */
+    public function sentFriendRequests()
+    {
+        return $this->hasMany(Friend::class, 'sender_id');
+    }
+
+    /**
+     * Permintaan pertemanan yang diterima
+     */
+    public function receivedFriendRequests()
+    {
+        return $this->hasMany(Friend::class, 'receiver_id');
+    }
+
+    /**
+     * Daftar teman (Accepted)
+     */
+    public function friends()
+    {
+        // Teman di mana user sebagai pengirim
+        $friendsAsSender = $this->belongsToMany(User::class, 'friends', 'sender_id', 'receiver_id')
+            ->wherePivot('status', 'accepted');
+
+        // Teman di mana user sebagai penerima
+        $friendsAsReceiver = $this->belongsToMany(User::class, 'friends', 'receiver_id', 'sender_id')
+            ->wherePivot('status', 'accepted');
+
+        return $friendsAsSender->union($friendsAsReceiver);
+    }
+
+    /**
+     * Cek apakah berteman dengan user lain
+     */
+    public function isFriendsWith($userId)
+    {
+        return Friend::where(function($q) use ($userId) {
+                $q->where('sender_id', $this->id)->where('receiver_id', $userId);
+            })
+            ->orWhere(function($q) use ($userId) {
+                $q->where('sender_id', $userId)->where('receiver_id', $this->id);
+            })
+            ->where('status', 'accepted')
+            ->exists();
+    }
 }

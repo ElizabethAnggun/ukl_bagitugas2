@@ -99,6 +99,22 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('friends.index') }}" class="sidebar-link flex items-center px-6 py-3 text-gray-600 {{ request()->routeIs('friends.*') ? 'active' : '' }}">
+                            <div class="relative">
+                                <i class="fas fa-user-friends w-6"></i>
+                                @php
+                                    $pendingCount = Auth::user()->receivedFriendRequests()->where('status', 'pending')->count();
+                                @endphp
+                                @if($pendingCount > 0)
+                                    <span class="absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
+                                        {{ $pendingCount }}
+                                    </span>
+                                @endif
+                            </div>
+                            <span>Teman</span>
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('notifications.index') }}" class="sidebar-link flex items-center px-6 py-3 text-gray-600 {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
                             <div class="relative">
                                 <i class="fas fa-bell w-6"></i>
@@ -169,6 +185,14 @@
                         </a>
                         <a href="{{ route('activities.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
                             <i class="fas fa-history w-6"></i> Riwayat
+                        </a>
+                        <a href="{{ route('friends.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
+                            <i class="fas fa-user-friends w-6"></i> Teman
+                            @if($pendingCount > 0)
+                                <span class="ml-1 bg-orange-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                                    {{ $pendingCount }}
+                                </span>
+                            @endif
                         </a>
                         <a href="{{ route('notifications.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
                             <i class="fas fa-bell w-6"></i> Notifikasi

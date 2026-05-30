@@ -65,24 +65,27 @@
             @enderror
         </div>
         
-        <!-- Assigned To -->
+        <!-- Ditugaskan Ke (Email & Autocomplete) -->
         <div class="mb-6">
-            <label for="user_id" class="block text-sm font-medium text-gray-700 mb-2">
-                <i class="fas fa-user mr-2 text-green-500"></i>Ditugaskan Ke <span class="text-red-500">*</span>
+            <label class="block text-gray-700 text-sm font-bold mb-2">
+                <i class="fas fa-user-tag text-green-500 mr-2"></i>Ditugaskan Ke (Email) *
             </label>
-            <select name="user_id" 
-                    id="user_id" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('user_id') border-red-500 @enderror"
-                    required>
-                <option value="">Pilih User</option>
-                @foreach($users as $user)
-                    <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
-                        {{ $user->name }} ({{ $user->email }})
-                    </option>
+            <input type="email" 
+                   name="email" 
+                   id="email" 
+                   list="friends-list"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition @error('email') border-red-500 @enderror"
+                   placeholder="Masukkan email teman..."
+                   value="{{ old('email') }}"
+                   required>
+            <datalist id="friends-list">
+                @foreach($friends as $friend)
+                    <option value="{{ $friend->email }}">{{ $friend->name }}</option>
                 @endforeach
-            </select>
-            @error('user_id')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            </datalist>
+            <p class="text-[10px] text-gray-400 mt-1 italic">Hanya dapat memberikan tugas kepada user yang sudah menjadi teman (Accepted).</p>
+            @error('email')
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
             @enderror
         </div>
         

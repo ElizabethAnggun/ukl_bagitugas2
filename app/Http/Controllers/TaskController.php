@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller; // ✅ TAMBAHKAN INI
 use App\Models\Task;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Friend;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -64,10 +65,19 @@ class TaskController extends Controller
             ->distinct()
             ->get();
         
-        // Ambil semua user untuk dropdown "ditugaskan ke"
-        $users = User::all();
+        // Ambil daftar teman untuk autocomplete/pilihan
+        $friendIds = Friend::where(function($q) use ($user) {
+                $q->where('sender_id', $user->id)->orWhere('receiver_id', $user->id);
+            })
+            ->where('status', 'accepted')
+            ->get()
+            ->map(function($f) use ($user) {
+                return $f->sender_id === $user->id ? $f->receiver_id : $f->sender_id;
+            });
 
-        return view('tasks.create', compact('projects', 'users'));
+        $friends = User::whereIn('id', $friendIds)->get();
+
+        return view('tasks.create', compact('projects', 'friends'));
     }
 
     /**
@@ -75,35 +85,47 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'project_id' => 'required|exists:projects,id',
-            'user_id' => 'required|exists:users,id',
+            'email' => 'required|email|exists:users,email',
             'deadline' => 'required|date',
             'status' => 'required|in:belum_mulai,berjalan,selesai',
         ], [
             'title.required' => 'Judul tugas wajib diisi',
             'project_id.required' => 'Proyek wajib dipilih',
-            'user_id.required' => 'User yang ditugaskan wajib dipilih',
+            'email.required' => 'Email penerima wajib diisi',
+            'email.exists' => 'User dengan email tersebut tidak terdaftar di sistem',
             'deadline.required' => 'Deadline wajib diisi',
         ]);
 
-        // Buat tugas baru
-        $task = Task::create($validated);
+        $user = Auth::user();
+        $assignee = User::where('email', $validated['email'])->first();
 
-        // Jika status selesai, buat log aktivitas (cek jika terlambat)
-        if ($task->status === 'selesai') {
-            ActivityLog::create([
-                'user_id' => $task->user_id,
-                'task_id' => $task->id,
-                'activity' => $task->title,
-                'status' => $task->isLate() ? 'terlambat' : 'selesai',
-            ]);
+        // 1. Otorisasi: Cek apakah user berhak menambah tugas di proyek ini (Hanya Owner)
+        $project = Project::find($validated['project_id']);
+        if ($project->user_id !== $user->id) {
+            return redirect()->back()->with('error', 'Hanya pemilik proyek yang dapat menambah tugas.');
         }
 
-        return redirect()->route('tasks.index')
-            ->with('success', 'Tugas berhasil dibuat!');
+        // 2. Validasi Pertemanan: Pastikan pembuat tugas dan penerima adalah teman (Accepted)
+        // Kecuali jika menugaskan ke diri sendiri
+        if ($assignee->id !== $user->id) {
+            if (!$user->isFriendsWith($assignee->id)) {
+                return redirect()->back()->withInput()->with('error', 'Anda hanya dapat memberikan tugas kepada user yang sudah menjadi teman.');
+            }
+        }
+
+        // 3. Simpan tugas
+        $task = Task::create([
+            'title' => $validated['title'],
+            'project_id' => $validated['project_id'],
+            'user_id' => $assignee->id,
+            'deadline' => $validated['deadline'],
+            'status' => $validated['status'],
+        ]);
+
+        return redirect()->route('tasks.index')->with('success', 'Tugas berhasil dibuat!');
     }
 
     /**
@@ -143,9 +165,19 @@ class TaskController extends Controller
             ->distinct()
             ->get();
             
-        $users = User::all();
+        // Ambil daftar teman
+        $friendIds = Friend::where(function($q) use ($user) {
+                $q->where('sender_id', $user->id)->orWhere('receiver_id', $user->id);
+            })
+            ->where('status', 'accepted')
+            ->get()
+            ->map(function($f) use ($user) {
+                return $f->sender_id === $user->id ? $f->receiver_id : $f->sender_id;
+            });
 
-        return view('tasks.edit', compact('task', 'projects', 'users'));
+        $friends = User::whereIn('id', $friendIds)->get();
+
+        return view('tasks.edit', compact('task', 'projects', 'friends'));
     }
 
     /**
@@ -158,10 +190,20 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'project_id' => 'required|exists:projects,id',
-            'user_id' => 'required|exists:users,id',
+            'email' => 'required|email|exists:users,email',
             'deadline' => 'required|date',
             'status' => 'required|in:belum_mulai,berjalan,selesai',
         ]);
+
+        $user = Auth::user();
+        $assignee = User::where('email', $validated['email'])->first();
+
+        // Validasi Pertemanan (jika assignee berubah)
+        if ($assignee->id !== $user->id && $assignee->id !== $task->user_id) {
+            if (!$user->isFriendsWith($assignee->id)) {
+                return redirect()->back()->withInput()->with('error', 'Anda hanya dapat memberikan tugas kepada user yang sudah menjadi teman.');
+            }
+        }
 
         $oldStatus = $task->status;
         $newStatus = $validated['status'];
@@ -170,8 +212,12 @@ class TaskController extends Controller
             $validated['completed_at'] = now();
         }
 
-        // Update tugas
-        $task->update($validated);
+        // Update data (Ganti email input ke user_id)
+        $updateData = $validated;
+        $updateData['user_id'] = $assignee->id;
+        unset($updateData['email']);
+
+        $task->update($updateData);
 
         // Jika status berubah menjadi selesai, buat log (cek jika terlambat)
         if ($oldStatus !== $newStatus && $newStatus === 'selesai') {

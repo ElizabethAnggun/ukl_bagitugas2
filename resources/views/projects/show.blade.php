@@ -127,16 +127,23 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex space-x-2">
-                                    <a href="{{ route('tasks.edit', $task) }}" class="text-yellow-600 hover:text-yellow-700" title="Edit">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ route('tasks.show', $task) }}" class="text-blue-600 hover:text-blue-700" title="Lihat Detail & Diskusi">
+                                        <i class="fas fa-eye"></i>
                                     </a>
-                                    <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline" onsubmit="return confirm('Hapus tugas ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-700" title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
+                                    @can('update', $task)
+                                        <a href="{{ route('tasks.edit', $task) }}" class="text-yellow-600 hover:text-yellow-700" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    @endcan
+                                    @can('delete', $task)
+                                        <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline" onsubmit="return confirm('Hapus tugas ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-700" title="Hapus">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
