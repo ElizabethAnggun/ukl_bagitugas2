@@ -91,10 +91,7 @@
                 <!-- Brand -->
                 <div class="col-span-1 md:col-span-2">
                     <div class="flex items-center mb-4">
-                        <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center mr-3">
-                            <i class="fas fa-tasks text-white text-lg"></i>
-                        </div>
-                        <span class="text-xl font-bold">Bagi<span class="text-indigo-400">Tugas</span></span>
+                        <span class="text-xl font-bold">BagiTugas.</span>
                     </div>
                     <p class="text-gray-400 mb-4">
                         Sistem manajemen proyek dan tugas kolaboratif berbasis web yang dirancang untuk memudahkan pembagian tugas dalam tim.
@@ -117,8 +114,8 @@
                     <h3 class="text-lg font-semibold mb-4">Kontak</h3>
                     <ul class="space-y-2 text-gray-400">
                         <li><i class="fas fa-envelope mr-2"></i> support@bagitugas.com</li>
-                        <li><i class="fas fa-phone mr-2"></i> +62 123 4567 890</li>
-                        <li><i class="fas fa-map-marker-alt mr-2"></i> Jakarta, Indonesia</li>
+                        <li><i class="fas fa-phone mr-2"></i> +62 895 6052 74321</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i> Sidoarjo, Indonesia</li>
                     </ul>
                 </div>
             </div>
