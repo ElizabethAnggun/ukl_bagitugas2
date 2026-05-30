@@ -76,8 +76,8 @@ class Task extends Model
      */
     public function isLate(): bool
     {
-        // Bandingkan deadline dengan hari ini atau waktu update terakhir jika sudah selesai
-        $compareDate = ($this->status === 'selesai') ? $this->updated_at : Carbon::now();
+        // Bandingkan deadline dengan hari ini atau waktu penyelesaian jika sudah selesai
+        $compareDate = ($this->status === 'selesai') ? ($this->completed_at ?? $this->updated_at) : Carbon::now();
         
         return $compareDate->gt($this->deadline->endOfDay());
     }

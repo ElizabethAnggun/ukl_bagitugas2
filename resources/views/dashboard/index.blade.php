@@ -13,28 +13,28 @@
 
 <!-- Statistics Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Total Projects -->
+    <!-- Total My Tasks -->
     <div class="card-hover bg-white rounded-xl shadow-sm p-6 border-l-4 border-indigo-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm font-medium">Total Proyek</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">{{ $totalProjects }}</p>
+                <p class="text-gray-500 text-sm font-medium">Total Tugas Saya</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ $totalTasks }}</p>
             </div>
             <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
-                <i class="fas fa-folder text-indigo-600 text-xl"></i>
+                <i class="fas fa-clipboard-list text-indigo-600 text-xl"></i>
             </div>
         </div>
     </div>
     
-    <!-- Total Tasks -->
+    <!-- Running Tasks -->
     <div class="card-hover bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm font-medium">Total Tugas</p>
-                <p class="text-3xl font-bold text-gray-800 mt-1">{{ $totalTasks }}</p>
+                <p class="text-gray-500 text-sm font-medium">Tugas Berjalan</p>
+                <p class="text-3xl font-bold text-gray-800 mt-1">{{ $runningTasks }}</p>
             </div>
             <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <i class="fas fa-clipboard-list text-blue-600 text-xl"></i>
+                <i class="fas fa-spinner text-blue-600 text-xl"></i>
             </div>
         </div>
     </div>
@@ -74,7 +74,7 @@
         <div class="bg-white rounded-xl shadow-sm">
             <div class="p-6 border-b flex items-center justify-between">
                 <h2 class="text-lg font-bold text-gray-800">
-                    <i class="fas fa-folder text-indigo-500 mr-2"></i>Proyek Terbaru
+                    <i class="fas fa-folder text-indigo-500 mr-2"></i>Proyek yang Saya Ikuti
                 </h2>
                 <a href="{{ route('projects.index') }}" class="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
                     Lihat Semua <i class="fas fa-arrow-right ml-1"></i>
@@ -87,15 +87,20 @@
                         <div class="border rounded-xl p-4 hover:shadow-md transition">
                             <div class="flex items-center justify-between mb-2">
                                 <h3 class="font-semibold text-gray-800">{{ $project->name }}</h3>
-                                <span class="text-sm text-gray-500">
-                                    {{ $project->tasks_count }} tugas
-                                </span>
+                                <div class="flex items-center gap-3">
+                                    @if($project->user_id === Auth::id())
+                                        <span class="text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full font-bold uppercase">Owner</span>
+                                    @endif
+                                    <span class="text-sm text-gray-500">
+                                        {{ $project->tasks_count }} tugas
+                                    </span>
+                                </div>
                             </div>
                             
                             <!-- Progress Bar -->
                             <div class="mb-2">
                                 <div class="flex justify-between text-sm mb-1">
-                                    <span class="text-gray-600">Progress</span>
+                                    <span class="text-gray-600">Progress Proyek</span>
                                     <span class="font-semibold {{ $project->progress == 100 ? 'text-green-600' : 'text-indigo-600' }}">
                                         {{ $project->progress }}%
                                     </span>
@@ -139,7 +144,7 @@
         <div class="bg-white rounded-xl shadow-sm">
             <div class="p-6 border-b">
                 <h2 class="text-lg font-bold text-gray-800">
-                    <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>Tugas Terbaru
+                    <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>Tugas Saya Terbaru
                 </h2>
             </div>
             <div class="p-6">
@@ -170,37 +175,42 @@
         </div>
         
         <!-- Recent Activities -->
-        <div class="bg-white rounded-xl shadow-sm">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
             <div class="p-6 border-b flex items-center justify-between">
                 <h2 class="text-lg font-bold text-gray-800">
-                    <i class="fas fa-history text-purple-500 mr-2"></i>Riwayat Aktivitas
+                    <i class="fas fa-history text-orange-500 mr-2"></i>Riwayat Aktivitas
                 </h2>
-                <a href="{{ route('activities.index') }}" class="text-indigo-600 hover:text-indigo-700 text-sm">
-                    Lihat Semua
-                </a>
             </div>
             <div class="p-6">
-                @if($activities->count() > 0)
-                    <div class="space-y-3">
-                        @foreach($activities as $activity)
+                @if($recentActivities->count() > 0)
+                    <div class="space-y-4">
+                        @foreach($recentActivities as $activity)
                         <div class="flex items-start">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center mr-3
-                                {{ $activity->status == 'selesai' ? 'bg-green-100' : 'bg-red-100' }}">
-                                <span class="text-sm {{ $activity->status_color }}">{{ $activity->status_icon }}</span>
+                            <div class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center mr-3 mt-0.5 border">
+                                <span class="text-xs font-bold {{ $activity->status_color }}">
+                                    {!! $activity->status_icon !!}
+                                </span>
                             </div>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-800">
-                                    <span class="font-medium">{{ $activity->activity }}</span>
-                                    <span class="{{ $activity->status_color }}">{{ $activity->status }}</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-semibold text-gray-800">
+                                    Menyelesaikan tugas <span class="text-indigo-600">"{{ $activity->activity }}"</span>
                                 </p>
-                                <p class="text-xs text-gray-500">{{ $activity->created_at->diffForHumans() }}</p>
+                                <p class="text-[10px] text-gray-500 mt-0.5">
+                                    {{ $activity->created_at->diffForHumans() }}
+                                </p>
                             </div>
                         </div>
                         @endforeach
                     </div>
                 @else
-                    <p class="text-gray-500 text-center py-4">Belum ada aktivitas</p>
+                    <div class="text-center py-6">
+                        <i class="fas fa-tasks text-gray-300 text-3xl mb-2"></i>
+                        <p class="text-gray-500 text-xs">Belum ada aktivitas</p>
+                    </div>
                 @endif
+                <a href="{{ route('activities.index') }}" class="block text-center text-xs font-bold text-indigo-600 hover:text-indigo-700 mt-6 pt-4 border-t">
+                    Lihat Semua Riwayat
+                </a>
             </div>
         </div>
     </div>
