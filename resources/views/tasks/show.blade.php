@@ -15,11 +15,13 @@
         </p>
     </div>
     <div class="flex space-x-3">
-        @can('update', $task)
-            <a href="{{ route('tasks.edit', $task) }}" class="bg-yellow-500 text-white px-6 py-2 rounded-xl font-medium hover:bg-yellow-600 transition shadow-sm">
-                <i class="fas fa-edit mr-2"></i>Edit
-            </a>
-        @endcan
+        @if($isManager)
+            @can('update', $task)
+                <a href="{{ route('tasks.edit', $task) }}" class="bg-yellow-500 text-white px-6 py-2 rounded-xl font-medium hover:bg-yellow-600 transition shadow-sm">
+                    <i class="fas fa-edit mr-2"></i>Edit
+                </a>
+            @endcan
+        @endif
     </div>
 </div>
 
@@ -118,18 +120,16 @@
                             <a href="{{ route('downloadProof', ['task' => $task->id, 'path' => $file['path'], 'name' => $file['name']]) }}" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Download Langsung">
                                 <i class="fas fa-download text-xs"></i>
                             </a>
-                            @can('update', $task)
-                                @if(Auth::id() === $task->user_id || Auth::id() === $task->project->user_id)
-                                    <form action="{{ route('deleteProof', $task) }}" method="POST" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <input type="hidden" name="path" value="{{ $file['path'] }}">
-                                        <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" onclick="return confirm('Hapus bukti ini?')" title="Hapus">
-                                            <i class="fas fa-trash-alt text-xs"></i>
-                                        </button>
-                                    </form>
-                                @endif
-                            @endcan
+                                    @if($isManager || Auth::id() === $task->user_id)
+                                        <form action="{{ route('deleteProof', $task) }}" method="POST" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <input type="hidden" name="path" value="{{ $file['path'] }}">
+                                            <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" onclick="return confirm('Hapus bukti ini?')" title="Hapus">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                         </div>
                     </div>
                 @empty
@@ -139,8 +139,8 @@
                 @endforelse
             </div>
 
-            <!-- Upload Form (Hanya untuk yang ditugaskan) -->
-            @if(Auth::id() === $task->user_id || Auth::id() === $task->project->user_id)
+            <!-- Upload Form (Hanya untuk yang ditugaskan atau pengelola) -->
+            @if(Auth::id() === $task->user_id || $isManager)
                 <div class="bg-gray-50 rounded-2xl p-6 border-2 border-dashed border-gray-200">
                     <form action="{{ route('uploadProof', $task) }}" method="POST" enctype="multipart/form-data">
                         @csrf
@@ -204,7 +204,7 @@
                                 <div class="flex justify-between items-center mb-1">
                                     <span class="font-bold text-gray-800 text-sm">
                                         {{ $comment->user->name }}
-                                        @if($comment->user_id === $task->project->user_id)
+                                        @if($task->project->isManager($comment->user_id))
                                             <span class="ml-1 text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full uppercase">Pengelola</span>
                                         @endif
                                     </span>
@@ -294,8 +294,8 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-gray-800 truncate group-hover:text-indigo-600">{{ $member->name }}</p>
-                            @if($member->id === $task->project->user_id)
-                                <span class="text-[10px] text-indigo-500 font-bold uppercase">Owner</span>
+                            @if($task->project->isManager($member->id))
+                                <span class="text-[10px] text-indigo-500 font-bold uppercase">Pengelola</span>
                             @endif
                         </div>
                         <i class="fas fa-at text-gray-300 group-hover:text-indigo-400 text-xs"></i>

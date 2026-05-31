@@ -140,7 +140,7 @@ class TaskController extends Controller
     {
         $this->authorize('view', $task);
 
-        $task->load(['project.user', 'user', 'activityLogs', 'comments.user']);
+        $task->load(['project.user', 'project.managers', 'user', 'activityLogs', 'comments.user']);
 
         // Ambil daftar anggota proyek (Owner + semua user yang punya tugas di proyek ini)
         $owner = $task->project->user;
@@ -149,8 +149,11 @@ class TaskController extends Controller
         })->get();
 
         $projectMembers = collect([$owner])->concat($assignedUsers)->unique('id');
+        
+        // Tambahkan informasi apakah user adalah manager (Owner/Sub Pengelola)
+        $isManager = $task->project->isManager(auth()->id());
 
-        return view('tasks.show', compact('task', 'projectMembers'));
+        return view('tasks.show', compact('task', 'projectMembers', 'isManager'));
     }
 
     /**
@@ -268,7 +271,7 @@ class TaskController extends Controller
      */
     public function updateStatus(Request $request, Task $task)
     {
-        $this->authorize('update', $task);
+        $this->authorize('changeStatus', $task);
 
         $request->validate([
             'status' => 'required|in:belum_mulai,berjalan,selesai',
@@ -309,7 +312,7 @@ class TaskController extends Controller
     public function uploadProof(Request $request, Task $task)
     {
         // Otorisasi: Hanya user yang ditugaskan atau pemilik proyek
-        $this->authorize('update', $task);
+        $this->authorize('changeStatus', $task);
 
         $request->validate([
             'proof_files' => 'required|array|max:5',
@@ -372,7 +375,7 @@ class TaskController extends Controller
      */
     public function deleteProof(Request $request, Task $task)
     {
-        $this->authorize('update', $task);
+        $this->authorize('changeStatus', $task);
         
         $pathToDelete = $request->path;
         $files = $task->proof_file ?? [];

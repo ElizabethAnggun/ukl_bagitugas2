@@ -107,10 +107,19 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="flex flex-col">
-                                    <span class="px-2 py-1 rounded-full text-[10px] font-bold w-fit {{ $task->status_color }}">
-                                        {{ $task->status_label }}
-                                    </span>
+                                <div class="flex flex-col" id="task-status-{{ $task->id }}">
+                                    @can('changeStatus', $task)
+                                        <select onchange="updateTaskStatus({{ $task->id }}, this.value)" 
+                                                class="status-select px-3 py-1 rounded-full text-[10px] font-bold border-0 cursor-pointer {{ $task->status_color }}">
+                                            <option value="belum_mulai" {{ $task->status == 'belum_mulai' ? 'selected' : '' }}>Belum Mulai</option>
+                                            <option value="berjalan" {{ $task->status == 'berjalan' ? 'selected' : '' }}>Berjalan</option>
+                                            <option value="selesai" {{ $task->status == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                        </select>
+                                    @else
+                                        <span class="px-2 py-1 rounded-full text-[10px] font-bold w-fit {{ $task->status_color }}">
+                                            {{ $task->status_label }}
+                                        </span>
+                                    @endcan
                                     @if($task->isLate())
                                         <span class="text-[9px] text-red-500 font-bold mt-1 uppercase">Terlambat</span>
                                     @endif
@@ -240,3 +249,38 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function updateTaskStatus(taskId, status) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        fetch(`/tasks/${taskId}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const container = document.getElementById(`task-status-${taskId}`);
+                const select = container.querySelector('.status-select');
+                
+                // Update class warna
+                select.className = `status-select px-3 py-1 rounded-full text-[10px] font-bold border-0 cursor-pointer ${data.status_color}`;
+                
+                // Tampilkan notif sukses (opsional)
+                console.log(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Gagal memperbarui status');
+        });
+    }
+</script>
+@endpush

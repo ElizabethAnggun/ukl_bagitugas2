@@ -84,7 +84,7 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex flex-col">
-                                    @can('update', $task)
+                                    @can('changeStatus', $task)
                                         <select onchange="updateStatus({{ $task->id }}, this.value)" 
                                                 class="status-select px-3 py-1 rounded-full text-xs font-medium border-0 cursor-pointer {{ $task->status_color }}">
                                             <option value="belum_mulai" {{ $task->status == 'belum_mulai' ? 'selected' : '' }}>Belum Mulai</option>
