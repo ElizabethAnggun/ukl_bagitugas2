@@ -2,7 +2,6 @@
 
 @section('content')
 <style>
-    /* Menggunakan font Inter agar serasi dengan app.blade.php */
     .bg-gradient-main {
         background: linear-gradient(135deg, #1d61bd 0%, #0ea0d8 100%);
         width: 100%;
@@ -18,20 +17,28 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 120px 80px 60px 80px; /* Ditambah padding atas agar konten turun di bawah navbar absolute */
+        
+        /* 3 Baris ini adalah KUNCI agar konten ketengah di layar lebar */
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+        
+        padding: 120px 40px 60px 40px; /* Padding kiri-kanan dikecilkan jadi 40px */
     }
+    
     .hero-title {
         font-size: 8.5rem;
         font-weight: 900;
         line-height: 0.9;
         letter-spacing: -4px;
     }
+    
     .hero-subtitle {
         font-size: 2rem;
         font-weight: 700;
         line-height: 1.2;
-        margin-right: 30px;
     }
+    
     .btn-main {
         background-color: #2F5CB4;
         color: #ffffff;
@@ -41,25 +48,44 @@
         font-weight: 700;
         text-decoration: none;
         display: inline-block;
+        transition: transform 0.2s ease, background 0.2s;
     }
+    .btn-main:hover {
+        background-color: #1e428a;
+        transform: translateY(-3px);
+    }
+    
     .hero-image {
         position: relative;
         z-index: 10;
-        pointer-events: none; /* Klik kursor akan menembus gambar jika terjadi tumpang tindih */
+        pointer-events: none;
     }
+    
     .hero-mascot {
-        width: 600px;
+        width: 550px;
         height: auto;
         animation: float 4s ease-in-out infinite;
     }
+    
     @keyframes float {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-20px); }
     }
+    
+    /* Responsif untuk layar kecil/tablet */
     @media (max-width: 1024px) {
+        .hero-section {
+            flex-direction: column;
+            text-align: center;
+            justify-content: center;
+            gap: 40px;
+            padding: 120px 20px 40px 20px;
+        }
         .hero-title { font-size: 5rem; }
-        .hero-mascot { width: 400px; }
-        .custom-navbar, .hero-section { padding: 20px 40px; }
+        .hero-mascot { width: 380px; }
+        .hero-action {
+            align-items: center !important; /* Tombol pindah ke tengah */
+        }
     }
 </style>
 
@@ -67,7 +93,7 @@
     <section class="hero-section">
         <div class="hero-content">
             <h1 class="hero-title">Bagi<br>Tugas.</h1>
-            <div class="flex items-center mt-10">
+            <div class="hero-action flex flex-col items-start mt-8 gap-5">
                 <p class="hero-subtitle">Klik Tugasnya<br>Gas Kerjanya.</p>
                 <a href="{{ route('login') }}" class="btn-main">Masuk</a>
             </div>
@@ -102,6 +128,4 @@
         </div>
     </div>
 </section>
-
-{{-- Catatan: Bagian footer lama di file ini dihapus karena sudah di-handle otomatis oleh app.blade.php --}}
 @endsection

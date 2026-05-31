@@ -33,59 +33,61 @@
     
     @stack('styles')
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 flex flex-col min-h-screen">
+
     <!-- Navbar -->
-   <nav class="absolute top-0 left-0 w-full z-50">
-    <div class="flex justify-between items-center px-[80px] py-[25px]">
+    <nav class="absolute top-0 left-0 w-full z-50">
+        <!-- Pengecilan padding di mobile (px-6) dan normal di desktop (md:px-[80px]) -->
+        <div class="flex justify-between items-center px-6 md:px-[80px] py-[20px] md:py-[25px]">
 
-        <!-- Logo -->
-        <a href="{{ route('landing') }}" 
-           class="text-white text-[1.8rem] font-bold">
-            BagiTugas.
-        </a>
+            <!-- Logo -->
+            <a href="{{ route('landing') }}" class="text-white text-[1.5rem] md:text-[1.8rem] font-bold z-50">
+                BagiTugas.
+            </a>
 
-        <!-- Menu -->
-        <ul class="hidden md:flex items-center gap-[40px]">
+            <!-- Tombol Hamburger Menu (Hanya Muncul di Mobile) -->
+            <button id="menu-toggle" class="text-white text-2xl md:hidden z-50 focus:outline-none">
+                <i class="fas fa-bars"></i>
+            </button>
 
-            <li>
-                <a href="{{ route('landing') }}" 
-                   class="text-white text-[1.1rem] font-bold">
-                   Beranda
-                </a>
-            </li>
+            <!-- Menu (Desktop & Mobile) -->
+            <ul id="main-menu" class="hidden md:flex flex-col md:flex-row absolute md:static top-[75px] left-4 right-4 bg-[#1450a3] md:bg-transparent p-6 md:p-0 rounded-2xl shadow-xl md:shadow-none gap-4 md:gap-[40px] items-center text-center">
 
-            <li>
-                <a href="{{ route('about') }}" 
-                class="text-white text-[1.1rem] font-semibold">
-                Tentang Kami
-                </a>
-            </li>
+                <li class="w-full md:w-auto">
+                    <a href="{{ route('landing') }}" class="text-white text-[1.1rem] font-bold block py-2 md:py-0">
+                        Beranda
+                    </a>
+                </li>
 
-            <li>
-                <a href="{{ route('contact') }}" 
-                class="text-white text-[1.1rem] font-semibold">
-                Contact
-                </a>
-            </li>
+                <li class="w-full md:w-auto">
+                    <a href="{{ route('about') }}" class="text-white text-[1.1rem] font-semibold block py-2 md:py-0">
+                        Tentang Kami
+                    </a>
+                </li>
 
-            <li>
-                <a href="{{ route('login') }}"
-                   class="bg-[#2F5CB4] text-white px-[30px] py-[10px] rounded-full text-[1.1rem] font-semibold">
-                   Masuk
-                </a>
-            </li>
+                <li class="w-full md:w-auto">
+                    <a href="{{ route('contact') }}" class="text-white text-[1.1rem] font-semibold block py-2 md:py-0">
+                        Contact
+                    </a>
+                </li>
 
-        </ul>
-    </div>
-</nav>
+                <li class="w-full md:w-auto mt-2 md:mt-0">
+                    <a href="{{ route('login') }}" class="bg-[#2F5CB4] hover:bg-[#1e428a] text-white px-[30px] py-[10px] rounded-full text-[1.1rem] font-semibold inline-block w-full md:w-auto transition">
+                        Masuk
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
 
     <!-- Main Content -->
-    <main>
+    <main class="flex-grow">
         @yield('content')
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
+    <footer class="bg-gray-800 text-white py-12 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <!-- Brand -->
@@ -128,6 +130,18 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- JavaScript Toggle Hamburger Menu -->
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const mainMenu = document.getElementById('main-menu');
+
+        menuToggle.addEventListener('click', () => {
+            // Menambah/menghapus class untuk memunculkan menu sebagai kolom di mobile
+            mainMenu.classList.toggle('hidden');
+            mainMenu.classList.toggle('flex');
+        });
+    </script>
     
     <!-- Flash Messages -->
     @if(session('success'))
