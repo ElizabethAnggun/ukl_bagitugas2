@@ -46,6 +46,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('projects', ProjectController::class);
+    Route::post('/projects/{project}/managers', [ProjectController::class, 'addManager'])->name('projects.addManager');
+    Route::delete('/projects/{project}/managers/{user}', [ProjectController::class, 'removeManager'])->name('projects.removeManager');
    
     // ==================== TASK ROUTES ====================
     // CRUD Tugas

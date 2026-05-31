@@ -25,8 +25,8 @@ class TaskPolicy
      */
     public function view(User $user, Task $task): bool
     {
-        // Cek apakah user adalah owner proyek
-        if ($user->id === $task->project->user_id) {
+        // Cek apakah user adalah owner atau sub pengelola proyek
+        if ($task->project->isManager($user->id)) {
             return true;
         }
 
@@ -44,19 +44,19 @@ class TaskPolicy
 
     /**
      * Determine whether the user can update the model.
-     * Hanya pemilik proyek (yang ngasih tugas) dan user yang ditugaskan yang bisa edit
+     * Hanya pemilik proyek/sub pengelola (yang ngasih tugas) dan user yang ditugaskan yang bisa edit
      */
     public function update(User $user, Task $task): bool
     {
-        return $user->id === $task->project->user_id || $user->id === $task->user_id;
+        return $task->project->isManager($user->id) || $user->id === $task->user_id;
     }
 
     /**
      * Determine whether the user can delete the model.
-     * Hanya pemilik proyek (yang ngasih tugas) dan user yang ditugaskan yang bisa hapus
+     * Hanya pemilik proyek/sub pengelola dan user yang ditugaskan yang bisa hapus
      */
     public function delete(User $user, Task $task): bool
     {
-        return $user->id === $task->project->user_id || $user->id === $task->user_id;
+        return $task->project->isManager($user->id) || $user->id === $task->user_id;
     }
 }

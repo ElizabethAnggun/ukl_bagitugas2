@@ -96,10 +96,10 @@ class TaskController extends Controller
         $user = Auth::user();
         $assignee = User::where('email', $validated['email'])->first();
 
-        // 1. Otorisasi: Cek apakah user berhak menambah tugas di proyek ini (Hanya Owner)
+        // 1. Otorisasi: Cek apakah user berhak menambah tugas di proyek ini (Owner atau Sub Pengelola)
         $project = Project::find($validated['project_id']);
-        if ($project->user_id !== $user->id) {
-            return redirect()->back()->with('error', 'Hanya pemilik proyek yang dapat menambah tugas.');
+        if (!$project->isManager($user->id)) {
+            return redirect()->back()->with('error', 'Hanya pemilik atau sub pengelola proyek yang dapat menambah tugas.');
         }
 
         // 2. Validasi Pertemanan: Pastikan pembuat tugas dan penerima adalah teman (Accepted)

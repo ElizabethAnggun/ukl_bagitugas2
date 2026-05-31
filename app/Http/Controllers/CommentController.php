@@ -41,9 +41,27 @@ class CommentController extends Controller
         $mentionRecipients = collect();
         $regularRecipients = collect();
 
-        // 1. Pemilik Proyek (jika bukan pengomentar)
-        if ($task->project->user_id !== $user->id) {
+        // 1. Pemilik Proyek & Sub Pengelola (jika bukan pengomentar)
+        if (!$task->project->isManager($user->id)) {
+            // Notif ke Owner
             $regularRecipients->push($task->project->user_id);
+            
+            // Notif ke Sub Pengelola
+            foreach ($task->project->managers as $manager) {
+                if ($manager->id !== $user->id) {
+                    $regularRecipients->push($manager->id);
+                }
+            }
+        } else {
+            // Jika yang komen adalah Manager/Owner, notif ke Manager lainnya
+            if ($task->project->user_id !== $user->id) {
+                $regularRecipients->push($task->project->user_id);
+            }
+            foreach ($task->project->managers as $manager) {
+                if ($manager->id !== $user->id) {
+                    $regularRecipients->push($manager->id);
+                }
+            }
         }
 
         // 2. SEMUA user yang terlibat dalam proyek ini (siapapun yang punya tugas di proyek ini)
@@ -66,8 +84,8 @@ class CommentController extends Controller
                     ->first();
                 
                 if ($mentionedUser && $mentionedUser->id !== $user->id) {
-                    // Cek apakah user yang dimention adalah anggota proyek (Owner atau punya tugas di situ)
-                    $isProjectMember = ($mentionedUser->id === $task->project->user_id) || 
+                    // Cek apakah user yang dimention adalah anggota proyek (Owner, Sub Pengelola, atau punya tugas di situ)
+                    $isProjectMember = $task->project->isManager($mentionedUser->id) || 
                                      Task::where('project_id', $task->project_id)
                                          ->where('user_id', $mentionedUser->id)
                                          ->exists();

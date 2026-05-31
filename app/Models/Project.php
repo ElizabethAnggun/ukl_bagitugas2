@@ -51,6 +51,26 @@ class Project extends Model
     }
 
     /**
+     * Relasi: Project memiliki banyak sub pengelola (managers)
+     */
+    public function managers()
+    {
+        return $this->belongsToMany(User::class, 'project_managers');
+    }
+
+    /**
+     * Cek apakah user adalah owner atau sub pengelola
+     */
+    public function isManager($userId): bool
+    {
+        if ($this->user_id === $userId) {
+            return true;
+        }
+
+        return $this->managers()->where('user_id', $userId)->exists();
+    }
+
+    /**
      * Hitung progress proyek berdasarkan tugas selesai
      * @return int Persentase progress (0-100)
      */

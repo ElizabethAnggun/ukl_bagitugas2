@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Project;
+use App\Models\User;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
@@ -67,8 +69,22 @@ class ProjectController extends Controller
         $user = Auth::user();
         $isOwner = $project->user_id === $user->id;
 
-        // Load relasi tugas
-        $project->load(['tasks.user', 'user']);
+        // Load relasi tugas dan managers
+        $project->load(['tasks.user', 'user', 'managers']);
+
+        // Ambil daftar teman untuk autocomplete/pilihan sub pengelola
+        $friendIds = \App\Models\Friend::where(function($q) use ($user) {
+                $q->where('sender_id', $user->id)->orWhere('receiver_id', $user->id);
+            })
+            ->where('status', 'accepted')
+            ->get()
+            ->map(function($f) use ($user) {
+                return $f->sender_id === $user->id ? $f->receiver_id : $f->sender_id;
+            });
+
+        $friends = \App\Models\User::whereIn('id', $friendIds)
+            ->where('id', '!=', $project->user_id)
+            ->get();
 
         // Hitung statistik Proyek (untuk Owner)
         $stats = null;
@@ -87,9 +103,9 @@ class ProjectController extends Controller
         }
 
         // Filter tugas untuk User biasa (hanya tugas miliknya)
-        $tasks = $isOwner ? $project->tasks : $project->tasks->where('user_id', $user->id);
+        $tasks = $isOwner || $project->managers->contains($user->id) ? $project->tasks : $project->tasks->where('user_id', $user->id);
 
-        return view('projects.show', compact('project', 'tasks', 'isOwner', 'stats'));
+        return view('projects.show', compact('project', 'tasks', 'isOwner', 'stats', 'friends'));
     }
 
     /**
@@ -135,5 +151,55 @@ class ProjectController extends Controller
         return redirect()
             ->route('projects.index')
             ->with('success', 'Proyek berhasil dihapus');
+    }
+
+    /**
+     * Tambahkan sub pengelola ke proyek
+     */
+    public function addManager(Request $request, Project $project)
+    {
+        $this->authorize('update', $project);
+
+        $validated = $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $userToAdd = User::where('email', $validated['email'])->first();
+
+        // 1. Cek apakah user adalah owner
+        if ($userToAdd->id === $project->user_id) {
+            return redirect()->back()->with('error', 'User ini adalah pemilik proyek.');
+        }
+
+        // 2. Cek apakah sudah jadi manager
+        if ($project->managers()->where('user_id', $userToAdd->id)->exists()) {
+            return redirect()->back()->with('error', 'User ini sudah menjadi sub pengelola.');
+        }
+
+        // 3. Tambahkan manager
+        $project->managers()->attach($userToAdd->id);
+
+        // 4. Kirim notifikasi
+        Notification::create([
+            'user_id' => $userToAdd->id,
+            'title' => 'Anda Menjadi Sub Pengelola',
+            'message' => "Anda telah dijadikan sub pengelola untuk proyek \"{$project->name}\" oleh " . auth()->user()->name . ".",
+            'link' => route('projects.show', $project->id),
+            'is_read' => false,
+        ]);
+
+        return redirect()->back()->with('success', 'Sub pengelola berhasil ditambahkan.');
+    }
+
+    /**
+     * Hapus sub pengelola dari proyek
+     */
+    public function removeManager(Project $project, User $user)
+    {
+        $this->authorize('update', $project);
+
+        $project->managers()->detach($user->id);
+
+        return redirect()->back()->with('success', 'Sub pengelola berhasil dihapus.');
     }
 }

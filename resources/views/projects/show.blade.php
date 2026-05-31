@@ -22,8 +22,8 @@
     @endif
 </div>
 
-@if($isOwner && $stats)
-<!-- Statistics Cards (Hanya untuk Owner) -->
+@if(($isOwner || $project->managers->contains(Auth::id())) && $stats)
+<!-- Statistics Cards (Untuk Owner & Sub Pengelola) -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
     <div class="bg-white rounded-2xl shadow-sm p-4 border-l-4 border-indigo-500">
         <p class="text-gray-500 text-xs font-bold uppercase">Total Tugas</p>
@@ -47,7 +47,7 @@
     </div>
 </div>
 
-<!-- Project Progress (Hanya untuk Owner) -->
+<!-- Project Progress (Untuk Owner & Sub Pengelola) -->
 <div class="bg-white rounded-2xl shadow-sm p-6 mb-8">
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-bold text-gray-800">Progress Proyek Keseluruhan</h2>
@@ -67,9 +67,9 @@
             <div class="p-6 border-b flex items-center justify-between">
                 <h2 class="text-lg font-bold text-gray-800">
                     <i class="fas fa-tasks text-blue-500 mr-2"></i>
-                    {{ $isOwner ? 'Semua Tugas Proyek' : 'Tugas Saya di Proyek Ini' }}
+                    {{ $isOwner || $project->managers->contains(Auth::id()) ? 'Semua Tugas Proyek' : 'Tugas Saya di Proyek Ini' }}
                 </h2>
-                @if($isOwner)
+                @if($isOwner || $project->managers->contains(Auth::id()))
                 <a href="{{ route('tasks.create', ['project_id' => $project->id]) }}" class="text-indigo-600 hover:text-indigo-700 text-sm font-bold">
                     <i class="fas fa-plus mr-1"></i>Tambah Tugas
                 </a>
@@ -126,6 +126,15 @@
                                             <i class="fas fa-edit text-xs"></i>
                                         </a>
                                     @endcan
+                                    @can('delete', $task)
+                                        <form action="{{ route('tasks.destroy', $task) }}" method="POST" class="inline" onsubmit="return confirm('Hapus tugas ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="w-8 h-8 bg-red-50 text-red-600 rounded-lg flex items-center justify-center hover:bg-red-100 transition" title="Hapus">
+                                                <i class="fas fa-trash text-xs"></i>
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -144,6 +153,71 @@
 
     <!-- Project Info Sidebar -->
     <div class="space-y-6">
+        <!-- Sub Pengelola Section -->
+        @if($isOwner)
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Sub Pengelola</h2>
+            
+            <!-- List Managers -->
+            @if($project->managers->count() > 0)
+                <div class="space-y-3 mb-6">
+                    @foreach($project->managers as $manager)
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-white text-xs font-bold mr-2">
+                                {{ substr($manager->name, 0, 1) }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">{{ $manager->name }}</p>
+                                <p class="text-[10px] text-gray-500">{{ $manager->email }}</p>
+                            </div>
+                        </div>
+                        <form action="{{ route('projects.removeManager', [$project, $manager]) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-500 hover:text-red-700 p-1" title="Hapus Sub Pengelola">
+                                <i class="fas fa-times-circle text-sm"></i>
+                            </button>
+                        </form>
+                    </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="text-xs text-gray-500 italic mb-4">Belum ada sub pengelola.</p>
+            @endif
+
+            <!-- Add Manager Form -->
+            <form action="{{ route('projects.addManager', $project) }}" method="POST" class="space-y-3">
+                @csrf
+                <div>
+                    <label class="text-[10px] text-gray-500 uppercase font-bold">Tambah Sub Pengelola</label>
+                    <select name="email" class="w-full mt-1 border-gray-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                        <option value="">Pilih Teman...</option>
+                        @foreach($friends as $friend)
+                            <option value="{{ $friend->email }}">{{ $friend->name }} ({{ $friend->email }})</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button type="submit" class="w-full gradient-bg text-white py-2 rounded-lg text-sm font-bold hover:opacity-90 transition shadow-sm">
+                    <i class="fas fa-plus-circle mr-1"></i>Tambah
+                </button>
+            </form>
+        </div>
+        @else
+            @if($project->managers->count() > 0)
+            <div class="bg-white rounded-2xl shadow-sm p-6">
+                <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Sub Pengelola</h2>
+                <div class="flex -space-x-2 overflow-hidden">
+                    @foreach($project->managers as $manager)
+                    <div class="inline-block h-8 w-8 rounded-full ring-2 ring-white gradient-bg flex items-center justify-center text-white text-[10px] font-bold" title="{{ $manager->name }}">
+                        {{ substr($manager->name, 0, 1) }}
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        @endif
+
         <div class="bg-white rounded-2xl shadow-sm p-6">
             <h2 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Tentang Proyek</h2>
             <div class="space-y-4">
