@@ -134,24 +134,30 @@
             </nav>
             
             <!-- User Info -->
-            <div class="p-4 border-t bg-gray-50">
-                <div class="flex items-center">
-                    <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center">
-                        <span class="text-white font-semibold">{{ substr(Auth::user()->name, 0, 1) }}</span>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-800">{{ Auth::user()->name }}</p>
-                        <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
-                    </div>
-                </div>
-                <form action="{{ route('logout') }}" method="POST" class="mt-3">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center justify-center px-4 py-2 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
-                        <i class="fas fa-sign-out-alt mr-2"></i>
-                        Keluar
-                    </button>
-                </form>
-            </div>
+            <div class="flex items-center gap-3 px-4 py-3">
+    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+        {{ substr(Auth::user()->name, 0, 1) }}
+    </div>
+
+    <div class="min-w-0 flex-1">
+        <p class="text-sm font-bold text-gray-800 truncate">
+            {{ Auth::user()->name }}
+        </p>
+        <p class="text-xs text-gray-500 truncate">
+            {{ Auth::user()->email }}
+        </p>
+    </div>
+</div>
+
+<div class="px-4 mt-2">
+    <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition font-semibold">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Keluar</span>
+        </button>
+    </form>
+</div>
         </aside>
         
         <!-- Main Content -->

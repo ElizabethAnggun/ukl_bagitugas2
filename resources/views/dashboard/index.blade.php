@@ -175,11 +175,4 @@
     </div>
 </div>
 
-<div class="fixed bottom-8 right-8 z-50">
-    <a href="{{ route('tasks.create') }}" 
-       class="w-16 h-16 bg-[#2F5CB4] hover:bg-[#1e428a] text-white rounded-full shadow-[0_10px_20px_rgba(47,92,180,0.4)] flex items-center justify-center transition-all hover:scale-110 hover:-translate-y-1 group" 
-       title="Tambah Tugas">
-        <i class="fas fa-plus text-2xl group-hover:rotate-90 transition-transform duration-300"></i>
-    </a>
-</div>
 @endsection

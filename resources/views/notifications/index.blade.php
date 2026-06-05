@@ -3,75 +3,126 @@
 @section('title', 'Notifikasi')
 
 @section('content')
-<!-- Header -->
-<div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<style>
+    .animate-float-slow {
+        animation: float-slow 5s ease-in-out infinite;
+    }
+    @keyframes float-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .bounce-bubble {
+        animation: bounce-bubble 2s infinite ease-in-out;
+    }
+    @keyframes bounce-bubble {
+        0%, 100% { transform: translate(-50%, 0); }
+        50% { transform: translate(-50%, -5px); }
+    }
+</style>
+
+<div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-400/20 rounded-full blur-[120px]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-400/20 rounded-full blur-[120px]"></div>
+</div>
+
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 relative z-10">
     <div>
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Notifikasi</h1>
-        <p class="text-gray-600 mt-1">Lihat semua pemberitahuan untuk Anda</p>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 tracking-tight pb-2 mb-1">
+            Pusat Notifikasi
+        </h1>
+        <p class="text-gray-500 text-lg font-medium">Jangan lewatkan pembaruan penting dari tim dan proyek Anda.</p>
     </div>
+    
     @if($notifications->where('is_read', false)->count() > 0)
-        <form action="{{ route('notifications.markAllRead') }}" method="POST">
+        <form action="{{ route('notifications.markAllRead') }}" method="POST" class="mt-6 sm:mt-0 relative group inline-flex items-center justify-center">
             @csrf
-            <button type="submit" class="bg-indigo-100 text-indigo-700 px-6 py-2 rounded-xl font-medium hover:bg-indigo-200 transition">
-                <i class="fas fa-check-double mr-2"></i>Tandai Semua Dibaca
+            <div class="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
+            <button type="submit" class="relative bg-white text-indigo-600 px-6 py-3.5 rounded-2xl font-bold text-sm shadow-xl hover:bg-indigo-50 hover:scale-[1.02] transition-all duration-300 flex items-center gap-2 border border-indigo-100">
+                <i class="fas fa-check-double text-indigo-500"></i> Tandai Semua Dibaca
             </button>
         </form>
     @endif
 </div>
 
-<!-- Notifications Card -->
-<div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-    <div class="p-6">
+<div class="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-lg shadow-indigo-900/5 border border-white/80 relative z-10 overflow-hidden mb-8">
+    <div class="px-6 py-5 md:px-8 border-b border-gray-100/50 flex items-center justify-between bg-white/50">
+        <h2 class="text-xl font-bold text-gray-800 flex items-center">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 mr-4 shadow-sm">
+                <i class="fas fa-bell"></i>
+            </div>
+            Pemberitahuan Terbaru
+        </h2>
+        @if($notifications->where('is_read', false)->count() > 0)
+            <span class="bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm animate-pulse">
+                {{ $notifications->where('is_read', false)->count() }} Baru
+            </span>
+        @endif
+    </div>
+    
+    <div>
         @if($notifications->count() > 0)
-            <div class="divide-y divide-gray-100">
+            <div class="divide-y divide-gray-100/50">
                 @foreach($notifications as $notification)
                 <a href="{{ route('notifications.read', $notification) }}" 
-                   class="block p-4 hover:bg-gray-50 transition relative {{ !$notification->is_read ? 'bg-indigo-50/30' : '' }}">
-                    <div class="flex items-start gap-4">
-                        <!-- Icon -->
-                        <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center 
-                            {{ !$notification->is_read ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-400' }}">
-                            <i class="fas fa-bell"></i>
+                   class="block relative group transition-all duration-300 hover:bg-slate-50/80 
+                          {{ !$notification->is_read ? 'bg-indigo-50/40 border-l-4 border-indigo-500' : 'bg-transparent border-l-4 border-transparent hover:border-gray-300' }}">
+                    
+                    <div class="px-6 py-5 md:px-8 md:py-6 flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-110 
+                            {{ !$notification->is_read ? 'bg-gradient-to-br from-indigo-500 to-blue-500 text-white' : 'bg-gray-100 text-gray-400' }}">
+                            <i class="fas {{ !$notification->is_read ? 'fa-bell' : 'fa-check' }}"></i>
                         </div>
                         
-                        <!-- Content -->
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-1">
-                                <h3 class="font-bold text-gray-800 {{ !$notification->is_read ? '' : 'text-gray-600 font-medium' }}">
-                                    {{ $notification->title }}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-1">
+                                <h3 class="text-base font-extrabold truncate pr-4 {{ !$notification->is_read ? 'text-gray-900 group-hover:text-indigo-700' : 'text-gray-600' }}">
+                                    {{ $notification->title ?? 'Pembaruan Sistem' }}
                                 </h3>
-                                <span class="text-xs text-gray-400">
-                                    {{ $notification->created_at->diffForHumans() }}
+                                <span class="text-[11px] font-bold uppercase tracking-wider mt-1 sm:mt-0 {{ !$notification->is_read ? 'text-indigo-500' : 'text-gray-400' }}">
+                                    <i class="fas fa-clock mr-1 opacity-70"></i>{{ $notification->created_at->diffForHumans() }}
                                 </span>
                             </div>
-                            <p class="text-sm text-gray-600">{{ $notification->message }}</p>
+                            <p class="text-sm leading-relaxed {{ !$notification->is_read ? 'text-gray-700 font-medium' : 'text-gray-500' }}">
+                                {{ $notification->message }}
+                            </p>
                         </div>
                         
-                        <!-- Status Dot -->
                         @if(!$notification->is_read)
-                            <div class="w-2 h-2 bg-indigo-500 rounded-full mt-2"></div>
+                            <div class="w-3 h-3 bg-indigo-500 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.6)] mt-2 flex-shrink-0"></div>
                         @endif
                     </div>
                 </a>
                 @endforeach
             </div>
             
-            <!-- Pagination -->
-            <div class="mt-6 p-4 border-t">
-                {{ $notifications->links() }}
-            </div>
-        @else
-            <!-- Empty State -->
-            <div class="text-center py-12">
-                <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-bell-slash text-gray-300 text-4xl"></i>
+            @if($notifications->hasPages())
+                <div class="px-6 py-5 md:px-8 border-t border-gray-100/50 bg-white/30">
+                    {{ $notifications->links() }}
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Tidak Ada Notifikasi</h3>
-                <p class="text-gray-500 max-w-md mx-auto">
-                    Pemberitahuan akan muncul di sini ketika ada aktivitas baru yang melibatkan Anda.
+            @endif
+        @else
+            <div class="text-center py-16">
+                <div class="w-32 h-32 mx-auto mb-6 relative">
+                    <div class="absolute inset-0 bg-indigo-100 rounded-full blur-2xl animate-pulse opacity-50"></div>
+                    <img src="{{ asset('images/icon_ukl_v2.png') }}" alt="Empty Notifications" class="relative z-10 w-24 h-24 object-contain mx-auto opacity-70 grayscale-[30%] animate-float-slow">
+                </div>
+                <h3 class="text-2xl font-extrabold text-gray-900 mb-2">Hening...</h3>
+                <p class="text-gray-500 text-sm max-w-md mx-auto">
+                    Belum ada pemberitahuan baru untuk Anda. Silakan bersantai atau cek tugas yang sedang berjalan!
                 </p>
             </div>
         @endif
     </div>
+</div>
+
+<div class="fixed bottom-0 left-8 z-40 hidden lg:block group">
+    <div class="absolute -top-14 left-1/2 -translate-x-1/2 bg-white px-5 py-3 rounded-2xl shadow-[0_5px_15px_rgba(0,0,0,0.1)] border border-indigo-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-max bounce-bubble">
+        <p class="text-sm font-extrabold text-indigo-600">Aman kak {{ explode(' ', Auth::user()->name)[0] }}, belum ada info penting! 🐨</p>
+        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45 border-b border-r border-indigo-50"></div>
+    </div>
+    
+    <img src="{{ asset('images/icon_ukl_v2.png') }}" 
+         alt="Helper Koala" 
+         class="w-24 transform translate-y-12 group-hover:translate-y-2 transition-transform duration-500 ease-out drop-shadow-[0_10px_10px_rgba(0,0,0,0.2)]">
 </div>
 @endsection
