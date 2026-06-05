@@ -10,15 +10,14 @@
 </div>
 
 <!-- Header Ultra-Modern -->
-<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12 relative z-10">
-    <div>
-        <!-- Tulisan Workspace dihapus -->
-        
-        <!-- Ditambahkan pb-2 (padding-bottom) agar huruf 'y' tidak terpotong oleh efek bg-clip-text -->
-        <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 tracking-tight pb-2 mb-1">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-12 relative z-10">
+        <div class="mt-2 mb-10 relative z-10">
+        <h1 class="text-4xl md:text-4xl font-extrabold text-gray-900 tracking-tight pb-2 mb-1">
             Proyek Anda
         </h1>
-        <p class="text-gray-500 text-lg font-medium">Pantau dan kelola kolaborasi tim dalam satu pantauan.</p>
+        <p class="text-gray-600 text-base font-medium">
+            Pantau dan kelola kolaborasi tim dalam satu pantauan.
+        </p>
     </div>
     
     <a href="{{ route('projects.create') }}" class="mt-6 sm:mt-0 relative group inline-flex items-center justify-center">

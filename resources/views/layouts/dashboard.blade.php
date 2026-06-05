@@ -6,29 +6,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') | BagiTugas</title>
     
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         body {
             font-family: 'Inter', sans-serif;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .sidebar-link {
-            transition: all 0.3s ease;
-        }
-        .sidebar-link:hover, .sidebar-link.active {
-            background: rgba(99, 102, 241, 0.1);
-            color: #6366f1;
-            border-right: 3px solid #6366f1;
         }
         .card-hover {
             transition: all 0.3s ease;
@@ -46,67 +32,73 @@
             background: #f1f1f1;
         }
         ::-webkit-scrollbar-thumb {
-            background: #888;
+            background: #cbd5e1; /* Warna scrollbar sedikit dilembutkan */
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            background: #94a3b8;
         }
     </style>
     
     @stack('styles')
 </head>
-<body class="bg-gray-100">
-    <div class="flex h-screen overflow-hidden">
+<body class="bg-slate-50"> <div class="flex h-screen overflow-hidden">
         
-        <!-- Sidebar -->
-        <aside class="w-64 bg-white shadow-lg hidden md:flex flex-col">
-            <!-- Logo -->
-            <div class="p-6 border-b">
-                <a href="{{ route('dashboard') }}" class="flex items-center">
-                    <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center mr-3">
-                        <i class="fas fa-tasks text-white text-lg"></i>
-                    </div>
-                    <span class="text-xl font-bold text-gray-800">Bagi<span class="text-indigo-600">Tugas</span></span>
-                </a>
+        <aside class="w-64 bg-white shadow-[4px_0_24px_rgba(0,0,0,0.02)] hidden md:flex flex-col border-r border-gray-100 z-50">
+            
+            <div class="flex items-center gap-3 px-6 py-6 border-b border-gray-50">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white shadow-md shadow-blue-200 flex-shrink-0">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+                <span class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
+                    BagiTugas
+                </span>
             </div>
             
-            <!-- Navigation -->
-            <nav class="flex-1 overflow-y-auto py-4">
-                <ul class="space-y-1">
+            <nav class="flex-1 overflow-y-auto py-6">
+                <ul class="space-y-1.5">
                     <li>
-                        <a href="{{ route('dashboard') }}" class="sidebar-link flex items-center px-6 py-3 text-gray-600 {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                            <i class="fas fa-home w-6"></i>
+                        <a href="{{ route('dashboard') }}" 
+                           class="flex items-center gap-3 px-6 py-3.5 transition-all duration-300 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-[#1d61bd]/10 to-[#0ea0d8]/5 border-r-4 border-[#1d61bd] text-[#1d61bd] font-extrabold' : 'text-gray-500 hover:text-[#1d61bd] hover:bg-blue-50/50 font-medium' }}">
+                            <i class="fas fa-home text-lg w-6 text-center {{ request()->routeIs('dashboard') ? 'text-[#1d61bd]' : 'text-gray-400' }}"></i>
                             <span>Beranda</span>
                         </a>
                     </li>
+                    
                     <li>
-                        <a href="{{ route('projects.index') }}" class="sidebar-link flex items-center px-6 py-3 text-gray-600 {{ request()->routeIs('projects.*') ? 'active' : '' }}">
-                            <i class="fas fa-folder w-6"></i>
+                        <a href="{{ route('projects.index') }}" 
+                           class="flex items-center gap-3 px-6 py-3.5 transition-all duration-300 {{ request()->routeIs('projects.*') ? 'bg-gradient-to-r from-[#1d61bd]/10 to-[#0ea0d8]/5 border-r-4 border-[#1d61bd] text-[#1d61bd] font-extrabold' : 'text-gray-500 hover:text-[#1d61bd] hover:bg-blue-50/50 font-medium' }}">
+                            <i class="fas fa-folder text-lg w-6 text-center {{ request()->routeIs('projects.*') ? 'text-[#1d61bd]' : 'text-gray-400' }}"></i>
                             <span>Proyek</span>
                         </a>
                     </li>
+                    
                     <li>
-                        <a href="{{ route('tasks.index') }}" class="sidebar-link flex items-center px-6 py-3 text-gray-600 {{ request()->routeIs('tasks.*') ? 'active' : '' }}">
-                            <i class="fas fa-clipboard-list w-6"></i>
+                        <a href="{{ route('tasks.index') }}" 
+                           class="flex items-center gap-3 px-6 py-3.5 transition-all duration-300 {{ request()->routeIs('tasks.*') ? 'bg-gradient-to-r from-[#1d61bd]/10 to-[#0ea0d8]/5 border-r-4 border-[#1d61bd] text-[#1d61bd] font-extrabold' : 'text-gray-500 hover:text-[#1d61bd] hover:bg-blue-50/50 font-medium' }}">
+                            <i class="fas fa-clipboard-list text-lg w-6 text-center {{ request()->routeIs('tasks.*') ? 'text-[#1d61bd]' : 'text-gray-400' }}"></i>
                             <span>Tugas</span>
                         </a>
                     </li>
+                    
                     <li>
-                        <a href="{{ route('activities.index') }}" class="sidebar-link flex items-center px-6 py-3 text-gray-600 {{ request()->routeIs('activities.*') ? 'active' : '' }}">
-                            <i class="fas fa-history w-6"></i>
+                        <a href="{{ route('activities.index') }}" 
+                           class="flex items-center gap-3 px-6 py-3.5 transition-all duration-300 {{ request()->routeIs('activities.*') ? 'bg-gradient-to-r from-[#1d61bd]/10 to-[#0ea0d8]/5 border-r-4 border-[#1d61bd] text-[#1d61bd] font-extrabold' : 'text-gray-500 hover:text-[#1d61bd] hover:bg-blue-50/50 font-medium' }}">
+                            <i class="fas fa-history text-lg w-6 text-center {{ request()->routeIs('activities.*') ? 'text-[#1d61bd]' : 'text-gray-400' }}"></i>
                             <span>Riwayat</span>
                         </a>
                     </li>
+                    
                     <li>
-                        <a href="{{ route('friends.index') }}" class="sidebar-link flex items-center px-6 py-3 text-gray-600 {{ request()->routeIs('friends.*') ? 'active' : '' }}">
-                            <div class="relative">
-                                <i class="fas fa-user-friends w-6"></i>
+                        <a href="{{ route('friends.index') }}" 
+                           class="flex items-center gap-3 px-6 py-3.5 transition-all duration-300 {{ request()->routeIs('friends.*') ? 'bg-gradient-to-r from-[#1d61bd]/10 to-[#0ea0d8]/5 border-r-4 border-[#1d61bd] text-[#1d61bd] font-extrabold' : 'text-gray-500 hover:text-[#1d61bd] hover:bg-blue-50/50 font-medium' }}">
+                            <div class="relative w-6 text-center">
+                                <i class="fas fa-user-friends text-lg {{ request()->routeIs('friends.*') ? 'text-[#1d61bd]' : 'text-gray-400' }}"></i>
                                 @php
                                     $pendingCount = Auth::user()->receivedFriendRequests()->where('status', 'pending')->count();
                                 @endphp
                                 @if($pendingCount > 0)
-                                    <span class="absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
+                                    <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
                                         {{ $pendingCount }}
                                     </span>
                                 @endif
@@ -114,15 +106,17 @@
                             <span>Teman</span>
                         </a>
                     </li>
+                    
                     <li>
-                        <a href="{{ route('notifications.index') }}" class="sidebar-link flex items-center px-6 py-3 text-gray-600 {{ request()->routeIs('notifications.*') ? 'active' : '' }}">
-                            <div class="relative">
-                                <i class="fas fa-bell w-6"></i>
+                        <a href="{{ route('notifications.index') }}" 
+                           class="flex items-center gap-3 px-6 py-3.5 transition-all duration-300 {{ request()->routeIs('notifications.*') ? 'bg-gradient-to-r from-[#1d61bd]/10 to-[#0ea0d8]/5 border-r-4 border-[#1d61bd] text-[#1d61bd] font-extrabold' : 'text-gray-500 hover:text-[#1d61bd] hover:bg-blue-50/50 font-medium' }}">
+                            <div class="relative w-6 text-center">
+                                <i class="fas fa-bell text-lg {{ request()->routeIs('notifications.*') ? 'text-[#1d61bd]' : 'text-gray-400' }}"></i>
                                 @php
                                     $unreadCount = Auth::user()->notifications()->where('is_read', false)->count();
                                 @endphp
                                 @if($unreadCount > 0)
-                                    <span class="absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                                    <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
                                         {{ $unreadCount > 9 ? '9+' : $unreadCount }}
                                     </span>
                                 @endif
@@ -133,103 +127,104 @@
                 </ul>
             </nav>
             
-            <!-- User Info -->
-            <div class="flex items-center gap-3 px-4 py-3">
-    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-        {{ substr(Auth::user()->name, 0, 1) }}
-    </div>
+            <div class="border-t border-gray-100 p-4 bg-gray-50/50">
+                <div class="flex items-center gap-3 px-2 py-2 mb-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0 shadow-md">
+                        {{ substr(Auth::user()->name, 0, 1) }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-extrabold text-gray-800 truncate">
+                            {{ Auth::user()->name }}
+                        </p>
+                        <p class="text-[11px] font-semibold text-gray-500 truncate">
+                            {{ Auth::user()->email }}
+                        </p>
+                    </div>
+                </div>
 
-    <div class="min-w-0 flex-1">
-        <p class="text-sm font-bold text-gray-800 truncate">
-            {{ Auth::user()->name }}
-        </p>
-        <p class="text-xs text-gray-500 truncate">
-            {{ Auth::user()->email }}
-        </p>
-    </div>
-</div>
-
-<div class="px-4 mt-2">
-    <form action="{{ route('logout') }}" method="POST">
-        @csrf
-        <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl transition font-semibold">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Keluar</span>
-        </button>
-    </form>
-</div>
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-rose-500 hover:bg-rose-100 hover:text-rose-600 rounded-xl transition-all font-bold text-sm border border-transparent hover:border-rose-200">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Keluar Sistem</span>
+                    </button>
+                </form>
+            </div>
         </aside>
         
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col overflow-hidden relative">
             
-            <!-- Top Header (Mobile) -->
-            <header class="bg-white shadow-sm md:hidden">
+            <header class="bg-white/90 backdrop-blur-md shadow-sm md:hidden sticky top-0 z-50">
                 <div class="flex items-center justify-between p-4">
                     <div class="flex items-center">
-                        <div class="w-8 h-8 gradient-bg rounded-lg flex items-center justify-center mr-2">
-                            <i class="fas fa-tasks text-white text-sm"></i>
+                        <div class="w-8 h-8 bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] rounded-lg flex items-center justify-center mr-2 shadow-sm">
+                            <i class="fas fa-list-ul text-white text-sm"></i>
                         </div>
-                        <span class="font-bold text-gray-800">Bagi<span class="text-indigo-600">Tugas</span></span>
+                        <span class="font-extrabold text-xl text-gray-800 tracking-tight">Bagi<span class="text-[#1d61bd]">Tugas</span></span>
                     </div>
-                    <button id="mobile-menu-btn" class="text-gray-600">
+                    <button id="mobile-menu-btn" class="text-gray-500 hover:text-[#1d61bd] transition-colors p-2 rounded-lg bg-gray-50">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
                 </div>
                 
-                <!-- Mobile Menu -->
-                <div id="mobile-menu" class="hidden border-t">
-                    <nav class="py-2">
-                        <a href="{{ route('dashboard') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
-                            <i class="fas fa-home w-6"></i> Beranda
+                <div id="mobile-menu" class="hidden border-t border-gray-100 absolute w-full bg-white shadow-xl">
+                    <nav class="py-2 px-4 space-y-1">
+                        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                            <i class="fas fa-home w-5 text-center"></i> Beranda
                         </a>
-                        <a href="{{ route('projects.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
-                            <i class="fas fa-folder w-6"></i> Proyek
+                        <a href="{{ route('projects.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                            <i class="fas fa-folder w-5 text-center"></i> Proyek
                         </a>
-                        <a href="{{ route('tasks.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
-                            <i class="fas fa-clipboard-list w-6"></i> Tugas
+                        <a href="{{ route('tasks.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                            <i class="fas fa-clipboard-list w-5 text-center"></i> Tugas
                         </a>
-                        <a href="{{ route('activities.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
-                            <i class="fas fa-history w-6"></i> Riwayat
+                        <a href="{{ route('activities.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                            <i class="fas fa-history w-5 text-center"></i> Riwayat
                         </a>
-                        <a href="{{ route('friends.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
-                            <i class="fas fa-user-friends w-6"></i> Teman
+                        <a href="{{ route('friends.index') }}" class="flex items-center justify-between px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-user-friends w-5 text-center"></i> Teman
+                            </div>
                             @if($pendingCount > 0)
-                                <span class="ml-1 bg-orange-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-                                    {{ $pendingCount }}
-                                </span>
+                                <span class="bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $pendingCount }} Baru</span>
                             @endif
                         </a>
-                        <a href="{{ route('notifications.index') }}" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">
-                            <i class="fas fa-bell w-6"></i> Notifikasi
+                        <a href="{{ route('notifications.index') }}" class="flex items-center justify-between px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-bell w-5 text-center"></i> Notifikasi
+                            </div>
                             @if($unreadCount > 0)
-                                <span class="ml-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-                                    {{ $unreadCount }}
-                                </span>
+                                <span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $unreadCount }} Baru</span>
                             @endif
                         </a>
+                        
+                        <div class="border-t border-gray-100 my-2"></div>
+                        
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-500 hover:bg-rose-50 rounded-xl">
+                                <i class="fas fa-sign-out-alt w-5 text-center"></i> Keluar
+                            </button>
+                        </form>
                     </nav>
                 </div>
             </header>
             
-            <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto p-4 md:p-8">
+            <main class="flex-1 overflow-y-auto p-6 md:p-10 relative">
                 @yield('content')
             </main>
         </div>
     </div>
     
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Mobile Menu Toggle -->
     <script>
         document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
         });
     </script>
     
-    <!-- Flash Messages -->
     @if(session('success'))
     <script>
         Swal.fire({
@@ -237,7 +232,11 @@
             title: 'Berhasil!',
             text: '{{ session('success') }}',
             timer: 3000,
-            showConfirmButton: false
+            showConfirmButton: false,
+            customClass: {
+                popup: 'rounded-2xl',
+                title: 'text-gray-800 font-bold',
+            }
         });
     </script>
     @endif
@@ -248,6 +247,9 @@
             icon: 'error',
             title: 'Error!',
             text: '{{ session('error') }}',
+            customClass: {
+                popup: 'rounded-2xl'
+            }
         });
     </script>
     @endif

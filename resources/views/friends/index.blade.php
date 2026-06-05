@@ -29,10 +29,12 @@
 <!-- Header Ultra-Modern -->
 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 relative z-10">
     <div>
-        <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 tracking-tight pb-2 mb-1">
+        <h1 class="text-4xl md:text-4xl font-extrabold text-gray-900 tracking-tight pb-2 mb-1">
             Jejaring Teman
         </h1>
-        <p class="text-gray-500 text-lg font-medium">Kelola koneksi untuk mempermudah delegasi dan kolaborasi tugas.</p>
+        <p class="text-gray-600 text-base font-medium">
+            Lacak jejak penyelesaian tugas dan batas waktu yang terlewat.
+        </p>
     </div>
     
     <button onclick="document.getElementById('addFriendModal').classList.remove('hidden')" class="mt-6 sm:mt-0 relative group inline-flex items-center justify-center">

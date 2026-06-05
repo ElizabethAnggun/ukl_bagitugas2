@@ -27,10 +27,12 @@
 
 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 relative z-10">
     <div>
-        <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 tracking-tight pb-2 mb-1">
+        <h1 class="text-4xl md:text-4xl font-extrabold text-gray-900 tracking-tight pb-2 mb-1">
             Pusat Notifikasi
         </h1>
-        <p class="text-gray-500 text-lg font-medium">Jangan lewatkan pembaruan penting dari tim dan proyek Anda.</p>
+        <p class="text-gray-500 text-base font-medium">
+        Jangan lewatkan pembaruan penting dari tim dan proyek Anda.
+        </p>
     </div>
     
     @if($notifications->where('is_read', false)->count() > 0)
