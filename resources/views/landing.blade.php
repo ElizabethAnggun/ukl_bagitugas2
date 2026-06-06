@@ -92,7 +92,7 @@
 <div class="bg-gradient-main">
     <section class="hero-section">
         <div class="hero-content">
-            <h1 class="hero-title">Bagi<br>Tugas.</h1>
+            <h1 class="hero-title">Bagi<br>Tugas</h1>
             <div class="hero-action flex flex-col items-start mt-8 gap-5">
                 <p class="hero-subtitle">Klik Tugasnya<br>Gas Kerjanya.</p>
                 <a href="{{ route('login') }}" class="btn-main">Masuk</a>

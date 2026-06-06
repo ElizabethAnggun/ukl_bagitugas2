@@ -41,8 +41,14 @@
         <div class="flex justify-between items-center px-6 md:px-[80px] py-[20px] md:py-[25px]">
 
             <!-- Logo -->
-            <a href="{{ route('landing') }}" class="text-white text-[1.5rem] md:text-[1.8rem] font-bold z-50">
-                BagiTugas.
+            <a href="{{ route('landing') }}" class="flex items-center gap-2 md:gap-3 z-50 hover:scale-105 transition-transform duration-300">
+                <!-- Ikon Kepala Koala -->
+                <img src="{{ asset('images/Logo_BagiTugas.png') }}" alt="Logo BagiTugas" class="w-9 h-9 md:w-11 md:h-11 object-contain drop-shadow-md">
+                
+                <!-- Teks BagiTugas (Tetap Putih agar kontras dengan background gelap) -->
+                <span class="text-white text-[1.5rem] md:text-[1.8rem] font-extrabold tracking-tight drop-shadow-sm">
+                    BagiTugas
+                </span>
             </a>
 
             <!-- Tombol Hamburger Menu (Hanya Muncul di Mobile) -->
@@ -93,7 +99,7 @@
                 <!-- Brand -->
                 <div class="col-span-1 md:col-span-2">
                     <div class="flex items-center mb-4">
-                        <span class="text-xl font-bold">BagiTugas.</span>
+                        <span class="text-xl font-bold">BagiTugas</span>
                     </div>
                     <p class="text-gray-400 mb-4">
                         Sistem manajemen proyek dan tugas kolaboratif berbasis web yang dirancang untuk memudahkan pembagian tugas dalam tim.
@@ -123,7 +129,7 @@
             </div>
             
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; {{ date('Y') }} BagiTugas. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} BagiTugas All rights reserved.</p>
             </div>
         </div>
     </footer>

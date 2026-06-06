@@ -113,8 +113,8 @@
                 <div class="absolute inset-0 bg-blue-100 rounded-full blur-2xl animate-pulse"></div>
                 <img src="{{ asset('images/icon_ukl_v2.png') }}" alt="Koala" class="relative z-10 w-full h-full object-contain animate-float-slow">
             </div>
-            <h3 class="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Ruang Kerja Kosong</h3>
-            <p class="text-lg text-gray-500 mb-10 max-w-md mx-auto">Sistem belum mendeteksi adanya aktivitas proyek. Mulai inisiasi proyek pertamamu sekarang.</p>
+            <h3 class="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Belum Ada Proyek</h3>
+            <p class="text-lg text-gray-500 mb-10 max-w-md mx-auto">Saat ini kamu masih belum ada proyek satupun. Yuk mulai proyek pertamamu sekarang!</p>
             <a href="{{ route('projects.create') }}" class="inline-flex items-center gap-3 bg-gray-900 text-white px-10 py-5 rounded-2xl font-bold text-lg hover:bg-[#1d61bd] transition-all hover:scale-105 shadow-xl">
                 <i class="fas fa-rocket text-yellow-400"></i> Mulai Proyek Baru
             </a>
