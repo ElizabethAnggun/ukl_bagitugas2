@@ -8,8 +8,10 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\RealtimeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\FriendController;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,6 +41,14 @@ Route::post('/register', [AuthController::class, 'register']);
 // Route yang hanya bisa diakses setelah login
 Route::middleware(['auth'])->group(function () {
     
+    // Realtime Polling Routes
+    Route::get('/live/dashboard', [RealtimeController::class, 'dashboardLive'])->name('live.dashboard');
+    Route::get('/live/projects/{project}', [RealtimeController::class, 'projectLive'])->name('live.project');
+    Route::get('/live/tasks-list', [RealtimeController::class, 'tasksLive'])->name('live.tasks_list');
+    Route::get('/live/friends-list', [RealtimeController::class, 'friendsLive'])->name('live.friends_list');
+    Route::get('/live/tasks/{task}', [RealtimeController::class, 'taskLive'])->name('live.task');
+    Route::get('/live/notifications', [RealtimeController::class, 'notificationsLive'])->name('live.notifications');
+
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     

@@ -91,7 +91,7 @@
 
                     <!-- BUTTON -->
                     <button type="submit"
-                        class="w-full bg-[#365fbf] hover:bg-[#2d52a7] text-white py-3 rounded-2xl text-2xl font-bold transition shadow-xl">
+                        class="w-full bg-[#365fbf] hover:bg-[#2d52a7] text-white py-3 rounded-2xl text-2xl font-bold transition shadow-xl mb-4">
                         Masuk
                     </button>
                 </form>

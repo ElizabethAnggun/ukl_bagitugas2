@@ -36,7 +36,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <p class="text-sm text-gray-500">Status</p>
-                    <div class="mt-1 flex items-center">
+                    <div class="mt-1 flex items-center" id="live-task-status-container">
                         <span class="px-3 py-1 rounded-full text-xs font-medium {{ $task->status_color }}">
                             {{ $task->status_label }}
                         </span>
@@ -92,7 +92,7 @@
             </div>
 
             <!-- List Bukti -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6" id="live-proofs-container">
                 @forelse($task->proof_file ?? [] as $file)
                     <div class="flex items-center p-3 border rounded-xl hover:bg-gray-50 transition group cursor-pointer" 
                          onclick="previewProof('{{ asset('storage/' . $file['path']) }}', '{{ $file['name'] }}', '{{ pathinfo($file['path'], PATHINFO_EXTENSION) }}')">
@@ -192,9 +192,9 @@
                 </h2>
             </div>
             
-            <div class="p-6 space-y-6 max-h-[500px] overflow-y-auto" id="comments-container">
+            <div class="p-6 space-y-6 max-h-[500px] overflow-y-auto" id="live-comments-container">
                 @forelse($task->comments as $comment)
-                    <div class="flex items-start gap-4">
+                    <div class="flex items-start gap-4" id="comment-{{ $comment->id }}">
                         <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white
                             {{ $comment->user_id === $task->project->user_id ? 'bg-indigo-500' : 'bg-blue-500' }}">
                             {{ substr($comment->user->name, 0, 1) }}
@@ -335,8 +335,10 @@
 @push('scripts')
 <script>
     // Auto scroll ke bawah pada container komentar
-    const container = document.getElementById('comments-container');
-    container.scrollTop = container.scrollHeight;
+    const container = document.getElementById('live-comments-container');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
 
     /**
      * Fungsi untuk membalas komentar (ngetag user)
@@ -413,5 +415,158 @@
         content.innerHTML = ''; // Clear content to stop video if playing
         document.body.style.overflow = 'auto'; // Re-enable scroll
     }
+
+    function updateTaskLive() {
+        fetch('{{ route('live.task', $task->id) }}')
+            .then(response => response.json())
+            .then(data => {
+                // Update Status
+                const statusContainer = document.getElementById('live-task-status-container');
+                if (statusContainer) {
+                    let lateHtml = data.is_late ? `<span class="ml-2 text-xs text-red-500 font-bold uppercase"><i class="fas fa-exclamation-circle mr-1"></i>Terlambat</span>` : '';
+                    statusContainer.innerHTML = `
+                        <span class="px-3 py-1 rounded-full text-xs font-medium ${data.status_color}">
+                            ${data.status_label}
+                        </span>
+                        ${lateHtml}
+                    `;
+                }
+
+                // Update Proofs
+                const proofsContainer = document.getElementById('live-proofs-container');
+                if (data.proofs && data.proofs.length > 0) {
+                    const currentProofCount = proofsContainer.querySelectorAll('.group.cursor-pointer').length;
+                    // Update if count or content might have changed
+                    if (data.proofs.length !== currentProofCount) {
+                        let proofsHtml = '';
+                        data.proofs.forEach(file => {
+                            const ext = file.path.split('.').pop().toLowerCase();
+                            let icon = '<i class="fas fa-file-word text-blue-500"></i>';
+                            if (['jpg', 'jpeg', 'png'].includes(ext)) icon = '<i class="fas fa-image text-blue-400"></i>';
+                            else if (['mp4', 'mov', 'avi', 'mkv'].includes(ext)) icon = '<i class="fas fa-video text-purple-500"></i>';
+                            else if (ext === 'pdf') icon = '<i class="fas fa-file-pdf text-red-500"></i>';
+
+                            let deleteButton = '';
+                            if (data.is_manager || data.auth_id === data.task_user_id) {
+                                deleteButton = `
+                                    <form action="/tasks/${data.id}/proof" method="POST" class="inline">
+                                        <input type="hidden" name="_token" value="${data.csrf_token}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <input type="hidden" name="path" value="${file.path}">
+                                        <button type="submit" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" onclick="return confirm('Hapus bukti ini?')" title="Hapus">
+                                            <i class="fas fa-trash-alt text-xs"></i>
+                                        </button>
+                                    </form>
+                                `;
+                            }
+
+                            proofsHtml += `
+                                <div class="flex items-center p-3 border rounded-xl hover:bg-gray-50 transition group cursor-pointer" 
+                                     onclick="previewProof('/storage/${file.path}', '${file.name}', '${ext}')">
+                                    <div class="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center mr-3 text-gray-500">
+                                        ${icon}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-800 truncate">${file.name}</p>
+                                        <p class="text-[10px] text-gray-400">Diunggah: Baru saja</p>
+                                    </div>
+                                    <div class="flex space-x-1" onclick="event.stopPropagation()">
+                                        <a href="/tasks/${data.id}/proof/download?path=${encodeURIComponent(file.path)}&name=${encodeURIComponent(file.name)}" class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Download Langsung">
+                                            <i class="fas fa-download text-xs"></i>
+                                        </a>
+                                        ${deleteButton}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        proofsContainer.innerHTML = proofsHtml;
+                    }
+                } else {
+                    proofsContainer.innerHTML = `
+                        <div class="col-span-full py-6 text-center">
+                            <p class="text-gray-400 text-sm italic">Belum ada bukti pengerjaan yang diunggah.</p>
+                        </div>
+                    `;
+                }
+
+                // Update Comments
+                const commentsContainer = document.getElementById('live-comments-container');
+                const currentCommentCount = commentsContainer.querySelectorAll('.flex.items-start').length;
+                
+                if (data.comments.length > 0) {
+                    // Update only if count changes to avoid jumping
+                    if (data.comments.length !== currentCommentCount) {
+                        let commentsHtml = '';
+                        data.comments.forEach(comment => {
+                            const bgClass = comment.user_id === data.project_owner_id ? 'bg-indigo-500' : 'bg-blue-500';
+                            const managerLabel = comment.is_manager ? '<span class="ml-1 text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full uppercase">Pengelola</span>' : '';
+                            
+                            let deleteForm = '';
+                            if (comment.can_delete) {
+                                deleteForm = `
+                                    <form action="${comment.delete_url}" method="POST" class="inline">
+                                        <input type="hidden" name="_token" value="${data.csrf_token}">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="text-[10px] text-red-500 font-bold hover:underline" onclick="return confirm('Hapus komentar?')">
+                                            <i class="fas fa-trash-alt mr-1"></i>Hapus
+                                        </button>
+                                    </form>
+                                `;
+                            }
+
+                            commentsHtml += `
+                                <div class="flex items-start gap-4" id="comment-${comment.id}">
+                                    <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white ${bgClass}">
+                                        ${comment.avatar}
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="bg-gray-50 rounded-2xl p-4 relative group">
+                                            <div class="flex justify-between items-center mb-1">
+                                                <span class="font-bold text-gray-800 text-sm">
+                                                    ${comment.user_name}
+                                                    ${managerLabel}
+                                                </span>
+                                                <span class="text-[10px] text-gray-400">
+                                                    ${comment.created_at_human}
+                                                </span>
+                                            </div>
+                                            <p class="text-gray-700 text-sm whitespace-pre-wrap">${comment.comment}</p>
+                                            <div class="mt-2 flex items-center space-x-3">
+                                                <button type="button" onclick="replyTo('${comment.user_name}')" class="text-[10px] text-indigo-600 font-bold hover:underline">
+                                                    <i class="fas fa-reply mr-1"></i>Balas
+                                                </button>
+                                                ${deleteForm}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        
+                        const wasAtBottom = commentsContainer.scrollHeight - commentsContainer.scrollTop <= commentsContainer.clientHeight + 100;
+                        
+                        commentsContainer.innerHTML = commentsHtml;
+                        
+                        // Auto scroll to bottom if user was already at bottom
+                        if (wasAtBottom) {
+                            commentsContainer.scrollTop = commentsContainer.scrollHeight;
+                        }
+                    }
+                } else {
+                    commentsContainer.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-comment-dots text-gray-300 text-2xl"></i>
+                            </div>
+                            <p class="text-gray-400 text-sm">Belum ada komentar. Mulai diskusi sekarang!</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => console.error('Error fetching task live data:', error));
+    }
+
+    // Polling setiap 5 detik
+    setInterval(updateTaskLive, 5000);
 </script>
 @endpush

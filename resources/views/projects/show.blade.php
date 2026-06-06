@@ -51,11 +51,11 @@
 <div class="bg-white rounded-2xl shadow-sm p-6 mb-8">
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-bold text-gray-800">Progress Proyek Keseluruhan</h2>
-        <span class="text-2xl font-bold text-indigo-600">{{ $stats['progress'] }}%</span>
+        <span class="text-2xl font-bold text-indigo-600" id="live-progress-text">{{ $stats['progress'] }}%</span>
     </div>
     <div class="w-full bg-gray-100 rounded-full h-4">
         <div class="h-4 rounded-full transition-all duration-1000 {{ $stats['progress'] == 100 ? 'bg-green-500' : 'gradient-bg' }}" 
-             style="width: {{ $stats['progress'] }}%"></div>
+             id="live-progress-bar" style="width: {{ $stats['progress'] }}%"></div>
     </div>
 </div>
 @endif
@@ -87,9 +87,9 @@
                             <th class="px-6 py-4">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-gray-100" id="live-task-table-body">
                         @forelse($tasks as $task)
-                        <tr class="hover:bg-gray-50 transition">
+                        <tr class="hover:bg-gray-50 transition" id="task-row-{{ $task->id }}">
                             <td class="px-6 py-4">
                                 <p class="text-sm font-bold text-gray-800">{{ $task->title }}</p>
                             </td>
@@ -282,5 +282,178 @@
             alert('Gagal memperbarui status');
         });
     }
+
+    function updateProjectLive() {
+        fetch('{{ route('live.project', $project->id) }}')
+            .then(response => response.json())
+            .then(data => {
+                // Update Project Progress
+                if (data.stats) {
+                    const progressText = document.getElementById('live-progress-text');
+                    const progressBar = document.getElementById('live-progress-bar');
+                    if (progressText) progressText.innerText = data.stats.progress + '%';
+                    if (progressBar) {
+                        progressBar.style.width = data.stats.progress + '%';
+                        if (data.stats.progress == 100) {
+                            progressBar.classList.remove('gradient-bg');
+                            progressBar.classList.add('bg-green-500');
+                        } else {
+                            progressBar.classList.remove('bg-green-500');
+                            progressBar.classList.add('gradient-bg');
+                        }
+                    }
+                }
+
+                const tableBody = document.getElementById('live-task-table-body');
+                const existingTaskIds = new Set();
+                
+                // Update or Add Tasks
+                data.tasks.forEach(task => {
+                    existingTaskIds.add(task.id);
+                    let row = document.getElementById(`task-row-${task.id}`);
+                    
+                    if (row) {
+                        // Update existing task status
+                        const statusContainer = row.querySelector(`#task-status-${task.id}`);
+                        if (statusContainer) {
+                            const select = statusContainer.querySelector('.status-select');
+                            const badge = statusContainer.querySelector('span:not(.text-red-500)');
+
+                            if (select && select.value !== task.status) {
+                                select.value = task.status;
+                                select.className = `status-select px-3 py-1 rounded-full text-[10px] font-bold border-0 cursor-pointer ${task.status_color}`;
+                            } else if (badge) {
+                                badge.className = `px-2 py-1 rounded-full text-[10px] font-bold w-fit ${task.status_color}`;
+                                badge.innerText = task.status_label;
+                            }
+
+                            // Handle late badge
+                            let lateBadge = statusContainer.querySelector('.text-red-500');
+                            if (task.is_late) {
+                                if (!lateBadge) {
+                                    const span = document.createElement('span');
+                                    span.className = 'text-[9px] text-red-500 font-bold mt-1 uppercase';
+                                    span.innerText = 'Terlambat';
+                                    statusContainer.appendChild(span);
+                                }
+                            } else if (lateBadge) {
+                                lateBadge.remove();
+                            }
+                        }
+                    } else {
+                        // Add new task row
+                        // Remove "Belum ada tugas" row if it exists
+                        const emptyRow = tableBody.querySelector('td[colspan="5"]')?.parentElement;
+                        if (emptyRow) emptyRow.remove();
+
+                        const newRow = document.createElement('tr');
+                        newRow.className = 'hover:bg-gray-50 transition';
+                        newRow.id = `task-row-${task.id}`;
+                        
+                        let statusHtml = '';
+                        if (task.can_change_status) {
+                            statusHtml = `
+                                <select onchange="updateTaskStatus(${task.id}, this.value)" 
+                                        class="status-select px-3 py-1 rounded-full text-[10px] font-bold border-0 cursor-pointer ${task.status_color}">
+                                    <option value="belum_mulai" ${task.status == 'belum_mulai' ? 'selected' : ''}>Belum Mulai</option>
+                                    <option value="berjalan" ${task.status == 'berjalan' ? 'selected' : ''}>Berjalan</option>
+                                    <option value="selesai" ${task.status == 'selesai' ? 'selected' : ''}>Selesai</option>
+                                </select>
+                            `;
+                        } else {
+                            statusHtml = `
+                                <span class="px-2 py-1 rounded-full text-[10px] font-bold w-fit ${task.status_color}">
+                                    ${task.status_label}
+                                </span>
+                            `;
+                        }
+
+                        if (task.is_late) {
+                            statusHtml += '<span class="text-[9px] text-red-500 font-bold mt-1 uppercase">Terlambat</span>';
+                        }
+
+                        let actionsHtml = `
+                            <a href="${task.show_url}" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-100 transition" title="Diskusi">
+                                <i class="fas fa-comments text-xs"></i>
+                            </a>
+                        `;
+
+                        if (task.can_update) {
+                            actionsHtml += `
+                                <a href="${task.edit_url}" class="w-8 h-8 bg-yellow-50 text-yellow-600 rounded-lg flex items-center justify-center hover:bg-yellow-100 transition">
+                                    <i class="fas fa-edit text-xs"></i>
+                                </a>
+                            `;
+                        }
+
+                        if (task.can_delete) {
+                            actionsHtml += `
+                                <form action="${task.delete_url}" method="POST" class="inline" onsubmit="return confirm('Hapus tugas ini?');">
+                                    <input type="hidden" name="_token" value="${task.csrf_token}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="w-8 h-8 bg-red-50 text-red-600 rounded-lg flex items-center justify-center hover:bg-red-100 transition" title="Hapus">
+                                        <i class="fas fa-trash text-xs"></i>
+                                    </button>
+                                </form>
+                            `;
+                        }
+
+                        newRow.innerHTML = `
+                            <td class="px-6 py-4">
+                                <p class="text-sm font-bold text-gray-800">${task.title}</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-7 h-7 rounded-full gradient-bg flex items-center justify-center text-white text-[10px] font-bold mr-2">
+                                        ${task.user_avatar}
+                                    </div>
+                                    <span class="text-xs text-gray-600">${task.user_name}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs text-gray-500">
+                                    ${task.deadline}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col" id="task-status-${task.id}">
+                                    ${statusHtml}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2">
+                                    ${actionsHtml}
+                                </div>
+                            </td>
+                        `;
+                        tableBody.appendChild(newRow);
+                    }
+                });
+
+                // Remove tasks that no longer exist
+                const rows = tableBody.querySelectorAll('tr[id^="task-row-"]');
+                rows.forEach(row => {
+                    const id = parseInt(row.id.replace('task-row-', ''));
+                    if (!existingTaskIds.has(id)) {
+                        row.remove();
+                    }
+                });
+
+                // If no tasks left, show empty message
+                if (data.tasks.length === 0 && !tableBody.querySelector('td[colspan="5"]')) {
+                    const emptyRow = document.createElement('tr');
+                    emptyRow.innerHTML = `
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-400 italic text-sm">
+                            Belum ada tugas yang ditugaskan.
+                        </td>
+                    `;
+                    tableBody.appendChild(emptyRow);
+                }
+            })
+            .catch(error => console.error('Error fetching project live data:', error));
+    }
+
+    // Polling setiap 5 detik
+    setInterval(updateProjectLive, 5000);
 </script>
 @endpush

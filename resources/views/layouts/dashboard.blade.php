@@ -99,11 +99,13 @@
                                 @php
                                     $pendingCount = Auth::user()->receivedFriendRequests()->where('status', 'pending')->count();
                                 @endphp
-                                @if($pendingCount > 0)
-                                    <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
-                                        {{ $pendingCount }}
-                                    </span>
-                                @endif
+                                <div id="live-sidebar-friends-badge">
+                                    @if($pendingCount > 0)
+                                        <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
+                                            {{ $pendingCount }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                             <span>Teman</span>
                         </a>
@@ -117,11 +119,13 @@
                                 @php
                                     $unreadCount = Auth::user()->notifications()->where('is_read', false)->count();
                                 @endphp
-                                @if($unreadCount > 0)
-                                    <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
-                                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
-                                    </span>
-                                @endif
+                                <div id="live-sidebar-notifications-badge">
+                                    @if($unreadCount > 0)
+                                        <span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
+                                            {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                             <span>Notifikasi</span>
                         </a>
@@ -190,17 +194,21 @@
                             <div class="flex items-center gap-3">
                                 <i class="fas fa-user-friends w-5 text-center"></i> Teman
                             </div>
-                            @if($pendingCount > 0)
-                                <span class="bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $pendingCount }} Baru</span>
-                            @endif
+                            <div id="live-mobile-friends-badge">
+                                @if($pendingCount > 0)
+                                    <span class="bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $pendingCount }} Baru</span>
+                                @endif
+                            </div>
                         </a>
                         <a href="{{ route('notifications.index') }}" class="flex items-center justify-between px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
                             <div class="flex items-center gap-3">
                                 <i class="fas fa-bell w-5 text-center"></i> Notifikasi
                             </div>
-                            @if($unreadCount > 0)
-                                <span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $unreadCount }} Baru</span>
-                            @endif
+                            <div id="live-mobile-notifications-badge">
+                                @if($unreadCount > 0)
+                                    <span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $unreadCount }} Baru</span>
+                                @endif
+                            </div>
                         </a>
                         
                         <div class="border-t border-gray-100 my-2"></div>
@@ -260,5 +268,59 @@
     @endif
     
     @stack('scripts')
+
+    <!-- Semi-Realtime Polling (Notifications) -->
+    <script>
+        function checkNotifications() {
+            fetch('{{ route('live.notifications') }}')
+                .then(response => response.json())
+                .then(data => {
+                    // 1. Update Sidebar Notifications Badge
+                    const sidebarNotifBadge = document.getElementById('live-sidebar-notifications-badge');
+                    if (sidebarNotifBadge) {
+                        if (data.count > 0) {
+                            const countText = data.count > 9 ? '9+' : data.count;
+                            sidebarNotifBadge.innerHTML = `<span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">${countText}</span>`;
+                        } else {
+                            sidebarNotifBadge.innerHTML = '';
+                        }
+                    }
+
+                    // 2. Update Sidebar Friends Badge
+                    const sidebarFriendsBadge = document.getElementById('live-sidebar-friends-badge');
+                    if (sidebarFriendsBadge) {
+                        if (data.pending_friends_count > 0) {
+                            sidebarFriendsBadge.innerHTML = `<span class="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">${data.pending_friends_count}</span>`;
+                        } else {
+                            sidebarFriendsBadge.innerHTML = '';
+                        }
+                    }
+
+                    // 3. Update Mobile Notifications Badge
+                    const mobileNotifBadge = document.getElementById('live-mobile-notifications-badge');
+                    if (mobileNotifBadge) {
+                        if (data.count > 0) {
+                            mobileNotifBadge.innerHTML = `<span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">${data.count} Baru</span>`;
+                        } else {
+                            mobileNotifBadge.innerHTML = '';
+                        }
+                    }
+
+                    // 4. Update Mobile Friends Badge
+                    const mobileFriendsBadge = document.getElementById('live-mobile-friends-badge');
+                    if (mobileFriendsBadge) {
+                        if (data.pending_friends_count > 0) {
+                            mobileFriendsBadge.innerHTML = `<span class="bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">${data.pending_friends_count} Baru</span>`;
+                        } else {
+                            mobileFriendsBadge.innerHTML = '';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error fetching notifications:', error));
+        }
+
+        // Polling notifikasi setiap 7 detik
+        setInterval(checkNotifications, 7000);
+    </script>
 </body>
 </html>

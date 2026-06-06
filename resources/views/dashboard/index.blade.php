@@ -42,7 +42,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Total Tugas</p>
-                <p class="text-3xl font-bold text-gray-800 mt-2">{{ $totalTasks }}</p>
+                <p class="text-3xl font-bold text-gray-800 mt-2" id="live-total-tasks">{{ $totalTasks }}</p>
             </div>
             <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center">
                 <i class="fas fa-clipboard-list text-[#1d61bd] text-2xl"></i>
@@ -53,7 +53,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Berjalan</p>
-                <p class="text-3xl font-bold text-gray-800 mt-2">{{ $runningTasks }}</p>
+                <p class="text-3xl font-bold text-gray-800 mt-2" id="live-running-tasks">{{ $runningTasks }}</p>
             </div>
             <div class="w-14 h-14 bg-sky-50 rounded-2xl flex items-center justify-center">
                 <i class="fas fa-spinner text-[#0ea0d8] text-2xl"></i>
@@ -64,7 +64,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Selesai</p>
-                <p class="text-3xl font-bold text-gray-800 mt-2">{{ $completedTasks }}</p>
+                <p class="text-3xl font-bold text-gray-800 mt-2" id="live-completed-tasks">{{ $completedTasks }}</p>
             </div>
             <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center">
                 <i class="fas fa-check-circle text-emerald-500 text-2xl"></i>
@@ -75,7 +75,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Terlambat</p>
-                <p class="text-3xl font-bold text-gray-800 mt-2">{{ $lateTasks }}</p>
+                <p class="text-3xl font-bold text-gray-800 mt-2" id="live-late-tasks">{{ $lateTasks }}</p>
             </div>
             <div class="w-14 h-14 bg-rose-50 rounded-2xl flex items-center justify-center">
                 <i class="fas fa-exclamation-circle text-rose-500 text-2xl"></i>
@@ -96,7 +96,7 @@
                     Lihat Semua <i class="fas fa-chevron-right text-xs ml-1"></i>
                 </a>
             </div>
-            <div class="p-6">
+            <div class="p-6" id="live-recent-tasks-container">
                 @if($recentTasks->count() > 0)
                     <div class="space-y-4">
                         @foreach($recentTasks as $task)
@@ -176,3 +176,58 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    function updateDashboard() {
+        fetch('{{ route('live.dashboard') }}')
+            .then(response => response.json())
+            .then(data => {
+                // Update Stats
+                document.getElementById('live-total-tasks').innerText = data.stats.total;
+                document.getElementById('live-running-tasks').innerText = data.stats.running;
+                document.getElementById('live-completed-tasks').innerText = data.stats.completed;
+                document.getElementById('live-late-tasks').innerText = data.stats.late;
+
+                // Update Recent Tasks
+                const container = document.getElementById('live-recent-tasks-container');
+                if (data.recent_tasks.length > 0) {
+                    let html = '<div class="space-y-4">';
+                    data.recent_tasks.forEach(task => {
+                        html += `
+                            <a href="${task.url}" class="flex items-center justify-between p-4 bg-slate-50/80 hover:bg-slate-100/80 rounded-xl transition border border-slate-100 group">
+                                <div class="flex-1 min-w-0 pr-4">
+                                    <h3 class="text-base font-bold text-gray-800 truncate group-hover:text-[#1d61bd] transition">${task.title}</h3>
+                                    <p class="text-sm text-gray-500 mt-1 truncate">${task.project_name}</p>
+                                </div>
+                                <div class="flex flex-col items-end whitespace-nowrap">
+                                    <span class="px-3 py-1 text-[10px] font-bold rounded-full ${task.status_color}">
+                                        ${task.status_label}
+                                    </span>
+                                    <span class="text-[10px] font-semibold text-gray-400 mt-2">
+                                        <i class="fas fa-clock mr-1 text-[9px]"></i>${task.created_at_human}
+                                    </span>
+                                </div>
+                            </a>
+                        `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center py-10">
+                            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-clipboard-check text-gray-300 text-2xl"></i>
+                            </div>
+                            <p class="text-gray-500 font-medium">Belum ada tugas baru</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => console.error('Error fetching dashboard live data:', error));
+    }
+
+    // Update setiap 10 detik
+    setInterval(updateDashboard, 10000);
+</script>
+@endpush

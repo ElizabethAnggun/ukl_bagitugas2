@@ -20,7 +20,6 @@
     }
 </style>
 
-<!-- Ambient Background -->
 <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
     <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/20 rounded-full blur-[120px]"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#0ea0d8]/20 rounded-full blur-[120px]"></div>
@@ -55,16 +54,18 @@
             </div>
             Pemberitahuan Terbaru
         </h2>
-        @if($notifications->where('is_read', false)->count() > 0)
-            <span class="bg-[#1d61bd] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm animate-pulse">
-                {{ $notifications->where('is_read', false)->count() }} Baru
-            </span>
-        @endif
+        <div id="live-unread-badge-container">
+            @if($notifications->where('is_read', false)->count() > 0)
+                <span class="bg-[#1d61bd] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm animate-pulse">
+                    {{ $notifications->where('is_read', false)->count() }} Baru
+                </span>
+            @endif
+        </div>
     </div>
     
-    <div>
+    <div id="live-notifications-list-container">
         @if($notifications->count() > 0)
-            <div class="divide-y divide-gray-100/50">
+            <div class="divide-y divide-gray-100/50" id="live-notifications-list">
                 @foreach($notifications as $notification)
                 <a href="{{ route('notifications.read', $notification) }}" 
                    class="block relative group transition-all duration-300 hover:bg-slate-50/80 
@@ -72,7 +73,7 @@
                     
                     <div class="px-6 py-5 md:px-8 md:py-6 flex items-start gap-4">
                         <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-110 
-                            {{ !$notification->is_read ? 'bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] text-white' : 'bg-gray-100 text-gray-400' }}">
+                             {{ !$notification->is_read ? 'bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] text-white' : 'bg-gray-100 text-gray-400' }}">
                             <i class="fas {{ !$notification->is_read ? 'fa-bell' : 'fa-check' }}"></i>
                         </div>
                         
@@ -118,8 +119,7 @@
     </div>
 </div>
 
-<!-- Koala Maskot -->
-<div class="fixed bottom-0 left-8 z-40 hidden lg:block group">
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 hidden lg:block group">
     <div class="absolute -top-14 left-1/2 -translate-x-1/2 bg-white px-5 py-3 rounded-2xl shadow-[0_5px_15px_rgba(0,0,0,0.1)] border border-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-max bounce-bubble">
         <p class="text-sm font-extrabold text-[#1d61bd]">Aman kak {{ explode(' ', Auth::user()->name)[0] }}, belum ada info penting! 🐨</p>
         <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45 border-b border-r border-blue-50"></div>
@@ -129,4 +129,90 @@
          alt="Helper Koala" 
          class="w-24 transform translate-y-12 group-hover:translate-y-2 transition-transform duration-500 ease-out drop-shadow-[0_10px_10px_rgba(0,0,0,0.2)]">
 </div>
+
+@push('scripts')
+<script>
+    function updateNotificationsLive() {
+        fetch('{{ route('live.notifications') }}')
+            .then(response => response.json())
+            .then(data => {
+                // 1. Update Unread Badge
+                const badgeContainer = document.getElementById('live-unread-badge-container');
+                if (data.count > 0) {
+                    badgeContainer.innerHTML = `
+                        <span class="bg-[#1d61bd] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm animate-pulse">
+                            ${data.count} Baru
+                        </span>
+                    `;
+                } else {
+                    badgeContainer.innerHTML = '';
+                }
+
+                // 2. Update Notifications List
+                const listContainer = document.getElementById('live-notifications-list-container');
+                
+                if (data.total_count > 0) {
+                    let listHtml = '<div class="divide-y divide-gray-100/50" id="live-notifications-list">';
+                    
+                    data.notifications.forEach(notif => {
+                        const bgClass = !notif.is_read ? 'bg-blue-50/40 border-l-4 border-[#1d61bd]' : 'bg-transparent border-l-4 border-transparent hover:border-blue-200';
+                        const iconBg = !notif.is_read ? 'bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] text-white' : 'bg-gray-100 text-gray-400';
+                        const iconClass = !notif.is_read ? 'fa-bell' : 'fa-check';
+                        const titleClass = !notif.is_read ? 'text-gray-900 group-hover:text-[#1d61bd]' : 'text-gray-600';
+                        const timeClass = !notif.is_read ? 'text-[#0ea0d8]' : 'text-gray-400';
+                        const msgClass = !notif.is_read ? 'text-gray-700 font-medium' : 'text-gray-500';
+                        const dotHtml = !notif.is_read ? '<div class="w-3 h-3 bg-[#1d61bd] rounded-full shadow-[0_0_8px_rgba(29,97,189,0.6)] mt-2 flex-shrink-0"></div>' : '';
+
+                        listHtml += `
+                            <a href="${notif.url}" 
+                               class="block relative group transition-all duration-300 hover:bg-slate-50/80 ${bgClass}">
+                                
+                                <div class="px-6 py-5 md:px-8 md:py-6 flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-110 ${iconBg}">
+                                        <i class="fas ${iconClass}"></i>
+                                    </div>
+                                    
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-1">
+                                            <h3 class="text-base font-extrabold truncate pr-4 ${titleClass}">
+                                                ${notif.title}
+                                            </h3>
+                                            <span class="text-[11px] font-bold uppercase tracking-wider mt-1 sm:mt-0 ${timeClass}">
+                                                <i class="fas fa-clock mr-1 opacity-70"></i>${notif.created_at_human}
+                                            </span>
+                                        </div>
+                                        <p class="text-sm leading-relaxed ${msgClass}">
+                                            ${notif.message}
+                                        </p>
+                                    </div>
+                                    ${dotHtml}
+                                </div>
+                            </a>
+                        `;
+                    });
+                    
+                    listHtml += '</div>';
+                    listContainer.innerHTML = listHtml;
+                } else {
+                    listContainer.innerHTML = `
+                        <div class="text-center py-16">
+                            <div class="w-32 h-32 mx-auto mb-6 relative">
+                                <div class="absolute inset-0 bg-[#0ea0d8]/20 rounded-full blur-2xl animate-pulse opacity-50"></div>
+                                <img src="{{ asset('images/icon_ukl_v2.png') }}" alt="Empty Notifications" class="relative z-10 w-24 h-24 object-contain mx-auto opacity-70 grayscale-[30%] animate-float-slow">
+                            </div>
+                            <h3 class="text-2xl font-extrabold text-gray-900 mb-2">Hening...</h3>
+                            <p class="text-gray-500 text-sm max-w-md mx-auto">
+                                Belum ada pemberitahuan baru untuk Anda. Silakan bersantai atau cek tugas yang sedang berjalan!
+                            </p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => console.error('Error fetching notifications:', error));
+    }
+
+    // Polling setiap 5 detik
+    setInterval(updateNotificationsLive, 5000);
+</script>
+@endpush
 @endsection
