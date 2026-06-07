@@ -37,13 +37,14 @@
         </p>
     </div>
     
-    <button onclick="document.getElementById('addFriendModal').classList.remove('hidden')" class="mt-6 sm:mt-0 relative group inline-flex items-center justify-center">
-        <!-- Efek Glow di belakang tombol -->
-        <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-        <div class="relative bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center gap-3 cursor-pointer">
+    <div class="mt-6 sm:mt-0 relative group inline-block hover:scale-[1.02] transition-transform duration-300 cursor-pointer" onclick="document.getElementById('addFriendModal').classList.remove('hidden')">
+    
+        <div class="absolute -inset-1 bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] rounded-2xl blur-md opacity-40 group-hover:opacity-75 transition-opacity duration-300"></div>
+    
+        <button type="button" class="relative w-full bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl flex items-center justify-center gap-3">
             <i class="fas fa-user-plus"></i> Tambah Teman
-        </div>
-    </button>
+        </button>
+    </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10 items-start">

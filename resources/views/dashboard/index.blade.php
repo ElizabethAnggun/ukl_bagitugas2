@@ -4,13 +4,7 @@
 
 @section('content')
 <style>
-    .animate-float-slow {
-        animation: float-slow 5s ease-in-out infinite;
-    }
-    @keyframes float-slow {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
+    
 </style>
 
 <!-- Ambient Background Glow (Disamakan dengan Halaman Proyek) -->
@@ -19,20 +13,45 @@
     <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-400/20 rounded-full blur-[120px]"></div>
 </div>
 
-<!-- Welcome Section Banner -->
-<div class="mb-10 bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] rounded-[30px] px-6 py-6 md:px-10 md:py-6 shadow-2xl flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
-    <div class="relative z-10 text-white w-full md:w-2/3">
-        <h1 class="text-2xl md:text-3xl font-extrabold mb-2 drop-shadow-md">
-            Selamat datang, {{ $user->name }}! 👋
+<!-- Welcome Section Banner Ultra-Modern -->
+<!-- Welcome Section Banner (Fixed Layout: Kobi Anti-Tenggelam & Balon Pas) -->
+<div class="mb-10 bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] rounded-[30px] px-6 pt-8 pb-0 md:px-10 md:py-10 shadow-xl flex flex-col md:flex-row relative overflow-hidden">
+
+    <!-- Bagian Teks (Kiri/Atas) -->
+    <div class="relative z-10 text-white w-full md:w-3/5 mb-6 md:mb-0">
+        <span class="bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full text-[10px] md:text-xs font-bold tracking-wider mb-4 inline-block border border-white/20">
+            Selamat Datang di BagiTugas !
+        </span>
+        
+        <h1 class="text-3xl md:text-4xl font-extrabold mb-3 drop-shadow-md leading-tight">
+            Gimana kabarnya, <br class="md:hidden" /> {{ explode(' ', trim($user->name))[0] }}?
         </h1>
-        <p class="text-white/90 text-base md:text-lg font-medium">
-            Siap untuk membagi tugas dan menyelesaikan proyek hari ini? Klik tugasnya, gas kerjanya!
+        <p class="text-white/90 text-sm md:text-lg font-medium leading-relaxed">
+            Sudah siap untuk membagi tugas dan menyelesaikan proyek hari ini? Pantau deadline, kelola tim, dan gas kerjanya!
         </p>
     </div>
-    <div class="hidden md:flex w-1/3 relative z-10 justify-end">
-        <img src="{{ asset('images/icon_ukl_v2.png') }}" 
-             alt="Koala Mascot" 
-             class="w-32 md:w-44 drop-shadow-[0_15px_25px_rgba(0,0,0,0.3)] animate-float-slow">
+    
+    <!-- Bagian Maskot Kobi (Kanan/Bawah) -->
+    <div class="w-full md:w-2/5 flex justify-end items-end z-10 mt-2 md:mt-0">
+        
+        <div class="relative flex items-center mr-2 md:mr-0">
+            
+            <!-- Balon Teks -->
+            <div class="absolute right-full mr-2 md:mr-3 top-8 md:top-12 bg-white px-5 py-2.5 rounded-2xl rounded-tr-none shadow-md text-[#1d61bd] font-extrabold text-xs md:text-sm animate-bounce z-20 whitespace-nowrap" style="animation-duration: 3s;">
+                Hai, saya Kobi! 👋🏻✨
+                
+                <!-- Ekor Balon Chat Ala WhatsApp -->
+                <svg class="absolute text-white w-3 h-4 -right-[11px] top-0" viewBox="0 0 12 16" fill="currentColor">
+                    <path d="M0 0 L12 0 L0 16 Z" />
+                </svg>
+            </div>
+            
+            <!-- Gambar Maskot Kobi -->
+            <img src="{{ asset('images/icon_ukl_v2.png') }}" 
+                 alt="Kobi Mascot" 
+                 class="w-28 md:w-44 drop-shadow-[0_15px_25px_rgba(0,0,0,0.3)] transition-transform duration-500 hover:scale-105 relative z-10 cursor-pointer">
+        </div>
+        
     </div>
 </div>
 

@@ -95,8 +95,9 @@
             <a href="{{ route('projects.index') }}" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition">
                 Batal
             </a>
-            <button type="submit" class="gradient-bg text-white px-6 py-3 rounded-xl font-medium hover:opacity-90 transition shadow-lg">
-                <i class="fas fa-save mr-2"></i>Simpan Proyek
+            <button type="submit" 
+                class="px-8 py-2.5 bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] text-white font-bold rounded-xl shadow-md shadow-blue-200 hover:scale-[1.02] hover:shadow-lg transition-all flex items-center gap-2">
+                <i class="fas fa-save"></i> Simpan Proyek
             </button>
         </div>
     </form>
