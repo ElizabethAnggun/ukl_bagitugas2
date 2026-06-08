@@ -46,13 +46,11 @@
         
         <aside class="w-64 bg-white shadow-[4px_0_24px_rgba(0,0,0,0.02)] hidden md:flex flex-col border-r border-gray-100 z-50">
             
-            <!-- Logo Sidebar -->
             <div class="flex items-center gap-3 px-6 py-6 border-b border-gray-50">
-                <!-- Gambar Kepala Koala (Sesuaikan nama file jika berbeda) -->
-                <img src="{{ asset('images/Logo_BagiTugas.png') }}" alt="Mascot BagiTugas" class="w-11 h-11 object-contain drop-shadow-sm">
-                
-                <!-- Teks BagiTugas dengan Gradasi -->
-                <span class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white shadow-md shadow-blue-200 flex-shrink-0">
+                    <i class="fas fa-list-ul"></i>
+                </div>
+                <span class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
                     BagiTugas
                 </span>
             </div>
@@ -162,15 +160,12 @@
             
             <header class="bg-white/90 backdrop-blur-md shadow-sm md:hidden sticky top-0 z-50">
                 <div class="flex items-center justify-between p-4">
-                    <div class="flex items-center gap-2">
-    <!-- Gambar Kepala Koala versi kecil -->
-    <img src="{{ asset('images/Logo_BagiTugas.png') }}" alt="Mascot BagiTugas" class="w-8 h-8 object-contain">
-    
-    <!-- Teks BagiTugas versi kecil -->
-    <span class="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
-        BagiTugas
-    </span>
-</div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] rounded-lg flex items-center justify-center mr-2 shadow-sm">
+                            <i class="fas fa-list-ul text-white text-sm"></i>
+                        </div>
+                        <span class="font-extrabold text-xl text-gray-800 tracking-tight">Bagi<span class="text-[#1d61bd]">Tugas</span></span>
+                    </div>
                     <button id="mobile-menu-btn" class="text-gray-500 hover:text-[#1d61bd] transition-colors p-2 rounded-lg bg-gray-50">
                         <i class="fas fa-bars text-xl"></i>
                     </button>
