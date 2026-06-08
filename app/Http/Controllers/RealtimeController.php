@@ -129,7 +129,10 @@ class RealtimeController extends Controller
                 'is_manager' => $task->project->isManager($comment->user_id),
                 'avatar' => substr($comment->user->name, 0, 1),
                 'created_at_human' => $comment->created_at->diffForHumans(),
+                'is_edited' => $comment->updated_at && $comment->updated_at->ne($comment->created_at),
+                'can_edit' => $comment->user_id === $user->id,
                 'can_delete' => $comment->user_id === $user->id,
+                'update_url' => route('comments.update', $comment->id),
                 'delete_url' => route('comments.destroy', $comment->id),
             ];
         });

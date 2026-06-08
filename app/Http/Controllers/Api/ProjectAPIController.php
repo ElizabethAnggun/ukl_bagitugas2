@@ -10,17 +10,13 @@ class ProjectAPIController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
-        
-        $projects = Project::where('user_id', $user->id)
-            ->orWhereHas('tasks', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->with('user')
-            ->get();
+        // Agar bisa diuji di Postman tanpa login, kita ambil semua proyek
+        // Jika ingin filter per user, gunakan auth:sanctum di route
+        $projects = Project::with('user')->get();
 
         return response()->json([
             'success' => true,
+            'message' => 'Daftar proyek berhasil diambil',
             'data' => $projects
         ], 200);
     }
