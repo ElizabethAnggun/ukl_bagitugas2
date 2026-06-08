@@ -20,13 +20,15 @@
         </p>
     </div>
     
-    <a href="{{ route('projects.create') }}" class="mt-6 sm:mt-0 relative group inline-flex items-center justify-center">
-        <!-- Efek Glow di belakang tombol -->
-        <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-        <button class="relative bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center gap-3">
+    <div class="mt-6 sm:mt-0 relative group w-full sm:w-auto sm:inline-block hover:scale-[1.02] transition-transform duration-300">
+        
+        <div class="absolute -inset-1 bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] rounded-2xl blur-md opacity-40 group-hover:opacity-75 transition-opacity duration-300"></div>
+        
+        <a href="{{ route('projects.create') }}" class="relative w-full flex items-center justify-center gap-3 bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-xl">
             <i class="fas fa-plus"></i> Ciptakan Proyek
-        </button>
-    </a>
+        </a>
+        
+    </div>
 </div>
 
 <!-- Bento Grid Layout -->
