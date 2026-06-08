@@ -48,11 +48,6 @@
             
             <div class="flex items-center gap-3 px-6 py-6 border-b border-gray-50">
 
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white shadow-md shadow-blue-200 flex-shrink-0">
-                    <i class="fas fa-list-ul"></i>
-                </div>
-                <span class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
-
                 <img src="{{ asset('images/Logo_BagiTugas.png') }}" alt="Mascot BagiTugas" class="w-11 h-11 object-contain drop-shadow-sm">
                 
                 <span class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
