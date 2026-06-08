@@ -9,7 +9,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -42,15 +41,22 @@
     
     @stack('styles')
 </head>
-<body class="bg-slate-50"> <div class="flex h-screen overflow-hidden">
+<body class="bg-slate-50">
+    <div class="flex h-screen overflow-hidden">
         
         <aside class="w-64 bg-white shadow-[4px_0_24px_rgba(0,0,0,0.02)] hidden md:flex flex-col border-r border-gray-100 z-50">
             
             <div class="flex items-center gap-3 px-6 py-6 border-b border-gray-50">
+
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white shadow-md shadow-blue-200 flex-shrink-0">
                     <i class="fas fa-list-ul"></i>
                 </div>
                 <span class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
+
+                <img src="{{ asset('images/Logo_BagiTugas.png') }}" alt="Mascot BagiTugas" class="w-11 h-11 object-contain drop-shadow-sm">
+                
+                <span class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
+
                     BagiTugas
                 </span>
             </div>
@@ -160,11 +166,20 @@
             
             <header class="bg-white/90 backdrop-blur-md shadow-sm md:hidden sticky top-0 z-50">
                 <div class="flex items-center justify-between p-4">
+
                     <div class="flex items-center">
                         <div class="w-8 h-8 bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] rounded-lg flex items-center justify-center mr-2 shadow-sm">
                             <i class="fas fa-list-ul text-white text-sm"></i>
                         </div>
                         <span class="font-extrabold text-xl text-gray-800 tracking-tight">Bagi<span class="text-[#1d61bd]">Tugas</span></span>
+
+                    <div class="flex items-center gap-2">
+                        <img src="{{ asset('images/Logo_BagiTugas.png') }}" alt="Mascot BagiTugas" class="w-8 h-8 object-contain">
+                        
+                        <span class="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
+                            BagiTugas
+                        </span>
+
                     </div>
                     <button id="mobile-menu-btn" class="text-gray-500 hover:text-[#1d61bd] transition-colors p-2 rounded-lg bg-gray-50">
                         <i class="fas fa-bars text-xl"></i>
@@ -208,6 +223,19 @@
                         
                         <div class="border-t border-gray-100 my-2"></div>
                         
+                        <div class="flex items-center p-4 mb-4 bg-slate-50/80 backdrop-blur-sm rounded-2xl border border-gray-100/50 shadow-sm">
+                            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                            </div>
+                            <div class="ml-3 overflow-hidden flex-1">
+                                <p class="text-sm font-extrabold text-gray-900 truncate">
+                                    {{ Auth::user()->name }}
+                                </p>
+                                <p class="text-xs font-semibold text-gray-500 truncate mt-0.5">
+                                    {{ Auth::user()->email }}
+                                </p>
+                            </div>
+                        </div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-500 hover:bg-rose-50 rounded-xl">
@@ -234,37 +262,36 @@
     </script>
     
     @if(session('success'))
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: '{{ session('success') }}',
-            timer: 3000,
-            showConfirmButton: false,
-            customClass: {
-                popup: 'rounded-2xl',
-                title: 'text-gray-800 font-bold',
-            }
-        });
-    </script>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                timer: 3000,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'rounded-2xl',
+                    title: 'text-gray-800 font-bold',
+                }
+            });
+        </script>
     @endif
     
     @if(session('error'))
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: '{{ session('error') }}',
-            customClass: {
-                popup: 'rounded-2xl'
-            }
-        });
-    </script>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: '{{ session('error') }}',
+                customClass: {
+                    popup: 'rounded-2xl'
+                }
+            });
+        </script>
     @endif
     
     @stack('scripts')
 
-    <!-- Semi-Realtime Polling (Notifications) -->
     <script>
         function checkNotifications() {
             fetch('{{ route('live.notifications') }}')

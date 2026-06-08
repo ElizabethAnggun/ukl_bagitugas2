@@ -430,6 +430,6 @@
 
     // Jalankan polling setiap 5 detik
     setInterval(updateTasksLive, 5000);
-</script>
+ </script>
 @endpush
 @endsection

@@ -36,12 +36,16 @@
     </div>
     
     @if($notifications->where('is_read', false)->count() > 0)
-        <form action="{{ route('notifications.markAllRead') }}" method="POST" class="mt-6 sm:mt-0 relative group inline-flex items-center justify-center">
+        <form action="{{ route('notifications.markAllRead') }}" method="POST" class="mt-6 sm:mt-0 w-full sm:w-auto">
             @csrf
-            <div class="absolute -inset-0.5 bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-            <button type="submit" class="relative bg-white text-[#1d61bd] px-6 py-3.5 rounded-2xl font-bold text-sm shadow-xl hover:bg-blue-50 hover:scale-[1.02] transition-all duration-300 flex items-center gap-2 border border-blue-100">
-                <i class="fas fa-check-double text-[#0ea0d8]"></i> Tandai Semua Dibaca
-            </button>
+            <div class="relative group w-full sm:w-auto sm:inline-block hover:scale-[1.02] transition-transform duration-300">
+                
+                <div class="absolute -inset-1 bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] rounded-2xl blur-md opacity-30 group-hover:opacity-60 transition-opacity duration-300"></div>
+                
+                <button type="submit" class="relative w-full bg-white text-[#1d61bd] px-6 py-3.5 rounded-2xl font-bold text-sm shadow-xl hover:bg-blue-50 flex items-center justify-center gap-2 border border-blue-100">
+                    <i class="fas fa-check-double text-[#0ea0d8]"></i> Tandai Semua Dibaca
+                </button>
+            </div>
         </form>
     @endif
 </div>
@@ -117,17 +121,6 @@
             </div>
         @endif
     </div>
-</div>
-
-<div class="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 hidden lg:block group">
-    <div class="absolute -top-14 left-1/2 -translate-x-1/2 bg-white px-5 py-3 rounded-2xl shadow-[0_5px_15px_rgba(0,0,0,0.1)] border border-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none w-max bounce-bubble">
-        <p class="text-sm font-extrabold text-[#1d61bd]">Aman kak {{ explode(' ', Auth::user()->name)[0] }}, belum ada info penting! 🐨</p>
-        <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45 border-b border-r border-blue-50"></div>
-    </div>
-    
-    <img src="{{ asset('images/icon_ukl_v2.png') }}" 
-         alt="Helper Koala" 
-         class="w-24 transform translate-y-12 group-hover:translate-y-2 transition-transform duration-500 ease-out drop-shadow-[0_10px_10px_rgba(0,0,0,0.2)]">
 </div>
 
 @push('scripts')
