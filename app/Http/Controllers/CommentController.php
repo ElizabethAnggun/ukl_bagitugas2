@@ -125,6 +125,31 @@ class CommentController extends Controller
     }
 
     /**
+     * Update komentar
+     */
+    public function update(Request $request, Comment $comment)
+    {
+        // Pastikan hanya pemilik komentar yang bisa mengedit
+        if ($comment->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk mengedit komentar ini.');
+        }
+
+        // Validasi input
+        $request->validate([
+            'comment' => 'required|string|max:1000',
+        ], [
+            'comment.required' => 'Komentar tidak boleh kosong',
+            'comment.max' => 'Komentar maksimal 1000 karakter',
+        ]);
+
+        $comment->update([
+            'comment' => $request->comment,
+        ]);
+
+        return redirect()->back()->with('success', 'Komentar berhasil diperbarui!');
+    }
+
+    /**
      * Hapus komentar
      */
     public function destroy(Comment $comment)

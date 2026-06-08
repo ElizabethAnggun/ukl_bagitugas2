@@ -210,11 +210,28 @@
                                     </span>
                                     <span class="text-[10px] text-gray-400">
                                         {{ $comment->created_at->diffForHumans() }}
+                                        @if($comment->updated_at && $comment->updated_at->ne($comment->created_at))
+                                            <span class="italic text-[9px] ml-1">(diedit)</span>
+                                        @endif
                                     </span>
                                 </div>
-                                <p class="text-gray-700 text-sm whitespace-pre-wrap">{{ $comment->comment }}</p>
+                                <p class="text-gray-700 text-sm whitespace-pre-wrap" id="comment-text-{{ $comment->id }}">{{ $comment->comment }}</p>
 
-                                <div class="mt-2 flex items-center space-x-3">
+                                @if($comment->user_id === Auth::id())
+                                    <div id="edit-form-{{ $comment->id }}" class="hidden mt-2">
+                                        <form action="{{ route('comments.update', $comment) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <textarea name="comment" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" rows="2" required>{{ $comment->comment }}</textarea>
+                                            <div class="mt-2 flex justify-end space-x-2">
+                                                <button type="button" onclick="toggleEdit({{ $comment->id }})" class="px-3 py-1 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition">Batal</button>
+                                                <button type="submit" class="px-3 py-1 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition">Simpan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                @endif
+
+                                <div class="mt-2 flex items-center space-x-3" id="comment-actions-{{ $comment->id }}">
                                     <button type="button" 
                                             onclick="replyTo('{{ $comment->user->name }}')"
                                             class="text-[10px] text-indigo-600 font-bold hover:underline">
@@ -222,6 +239,9 @@
                                     </button>
                                     
                                     @if($comment->user_id === Auth::id())
+                                        <button type="button" onclick="toggleEdit({{ $comment->id }})" class="text-[10px] text-yellow-600 font-bold hover:underline">
+                                            <i class="fas fa-edit mr-1"></i>Edit
+                                        </button>
                                         <form action="{{ route('comments.destroy', $comment) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
@@ -350,6 +370,25 @@
         
         // Scroll ke form input
         input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    /**
+     * Toggle form edit komentar
+     */
+    function toggleEdit(commentId) {
+        const textElement = document.getElementById(`comment-text-${commentId}`);
+        const formElement = document.getElementById(`edit-form-${commentId}`);
+        const actionsElement = document.getElementById(`comment-actions-${commentId}`);
+
+        if (formElement.classList.contains('hidden')) {
+            formElement.classList.remove('hidden');
+            textElement.classList.add('hidden');
+            actionsElement.classList.add('hidden');
+        } else {
+            formElement.classList.add('hidden');
+            textElement.classList.remove('hidden');
+            actionsElement.classList.remove('hidden');
+        }
     }
 
     /**
@@ -500,6 +539,33 @@
                         data.comments.forEach(comment => {
                             const bgClass = comment.user_id === data.project_owner_id ? 'bg-indigo-500' : 'bg-blue-500';
                             const managerLabel = comment.is_manager ? '<span class="ml-1 text-[10px] bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full uppercase">Pengelola</span>' : '';
+                            const editedLabel = comment.is_edited ? '<span class="italic text-[9px] ml-1">(diedit)</span>' : '';
+
+                            let editHtml = '';
+                            if (comment.can_edit) {
+                                editHtml = `
+                                    <div id="edit-form-${comment.id}" class="hidden mt-2">
+                                        <form action="${comment.update_url}" method="POST">
+                                            <input type="hidden" name="_token" value="${data.csrf_token}">
+                                            <input type="hidden" name="_method" value="PUT">
+                                            <textarea name="comment" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" rows="2" required>${comment.comment}</textarea>
+                                            <div class="mt-2 flex justify-end space-x-2">
+                                                <button type="button" onclick="toggleEdit(${comment.id})" class="px-3 py-1 text-xs font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition">Batal</button>
+                                                <button type="submit" class="px-3 py-1 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition">Simpan</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                `;
+                            }
+
+                            let editButton = '';
+                            if (comment.can_edit) {
+                                editButton = `
+                                    <button type="button" onclick="toggleEdit(${comment.id})" class="text-[10px] text-yellow-600 font-bold hover:underline">
+                                        <i class="fas fa-edit mr-1"></i>Edit
+                                    </button>
+                                `;
+                            }
                             
                             let deleteForm = '';
                             if (comment.can_delete) {
@@ -528,13 +594,16 @@
                                                 </span>
                                                 <span class="text-[10px] text-gray-400">
                                                     ${comment.created_at_human}
+                                                    ${editedLabel}
                                                 </span>
                                             </div>
-                                            <p class="text-gray-700 text-sm whitespace-pre-wrap">${comment.comment}</p>
-                                            <div class="mt-2 flex items-center space-x-3">
+                                            <p class="text-gray-700 text-sm whitespace-pre-wrap" id="comment-text-${comment.id}">${comment.comment}</p>
+                                            ${editHtml}
+                                            <div class="mt-2 flex items-center space-x-3" id="comment-actions-${comment.id}">
                                                 <button type="button" onclick="replyTo('${comment.user_name}')" class="text-[10px] text-indigo-600 font-bold hover:underline">
                                                     <i class="fas fa-reply mr-1"></i>Balas
                                                 </button>
+                                                ${editButton}
                                                 ${deleteForm}
                                             </div>
                                         </div>
