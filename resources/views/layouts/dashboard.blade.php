@@ -62,7 +62,7 @@
                         <a href="{{ route('dashboard') }}" 
                            class="flex items-center gap-3 px-6 py-3.5 transition-all duration-300 {{ request()->routeIs('dashboard') ? 'bg-gradient-to-r from-[#1d61bd]/10 to-[#0ea0d8]/5 border-r-4 border-[#1d61bd] text-[#1d61bd] font-extrabold' : 'text-gray-500 hover:text-[#1d61bd] hover:bg-blue-50/50 font-medium' }}">
                             <i class="fas fa-home text-lg w-6 text-center {{ request()->routeIs('dashboard') ? 'text-[#1d61bd]' : 'text-gray-400' }}"></i>
-                            <span>Beranda</span>
+                            <span>Dashboard</span>
                         </a>
                     </li>
                     
@@ -160,86 +160,84 @@
         <div class="flex-1 flex flex-col overflow-hidden relative">
             
             <header class="bg-white/90 backdrop-blur-md shadow-sm md:hidden sticky top-0 z-50">
-                <div class="flex items-center justify-between p-4">
+    <div class="flex items-center justify-between p-4">
 
-                    <div class="flex items-center">
-                        <div class="w-8 h-8 bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] rounded-lg flex items-center justify-center mr-2 shadow-sm">
-                            <i class="fas fa-list-ul text-white text-sm"></i>
-                        </div>
-                        <span class="font-extrabold text-xl text-gray-800 tracking-tight">Bagi<span class="text-[#1d61bd]">Tugas</span></span>
+        <!-- Logo Mobile (Tinggal 1 dan Rapi) -->
+        <div class="flex items-center gap-2">
+            <img src="{{ asset('images/Logo_BagiTugas.png') }}" alt="Mascot BagiTugas" class="w-8 h-8 object-contain">
+            
+            <span class="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
+                BagiTugas
+            </span>
+        </div>
 
-                    <div class="flex items-center gap-2">
-                        <img src="{{ asset('images/Logo_BagiTugas.png') }}" alt="Mascot BagiTugas" class="w-8 h-8 object-contain">
-                        
-                        <span class="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] tracking-tight">
-                            BagiTugas
-                        </span>
+        <!-- Tombol Menu Hamburger -->
+        <button id="mobile-menu-btn" class="text-gray-500 hover:text-[#1d61bd] transition-colors p-2 rounded-lg bg-gray-50">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
 
-                    </div>
-                    <button id="mobile-menu-btn" class="text-gray-500 hover:text-[#1d61bd] transition-colors p-2 rounded-lg bg-gray-50">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
+    </div>
+    
+    <!-- Menu Dropdown Mobile -->
+    <div id="mobile-menu" class="hidden border-t border-gray-100 absolute w-full bg-white shadow-xl">
+        <nav class="py-2 px-4 space-y-1">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                <i class="fas fa-home w-5 text-center"></i> Dashboard
+            </a>
+            <a href="{{ route('projects.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                <i class="fas fa-folder w-5 text-center"></i> Proyek
+            </a>
+            <a href="{{ route('tasks.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                <i class="fas fa-clipboard-list w-5 text-center"></i> Tugas
+            </a>
+            <a href="{{ route('activities.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                <i class="fas fa-history w-5 text-center"></i> Riwayat
+            </a>
+            <a href="{{ route('friends.index') }}" class="flex items-center justify-between px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-user-friends w-5 text-center"></i> Teman
                 </div>
-                
-                <div id="mobile-menu" class="hidden border-t border-gray-100 absolute w-full bg-white shadow-xl">
-                    <nav class="py-2 px-4 space-y-1">
-                        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
-                            <i class="fas fa-home w-5 text-center"></i> Beranda
-                        </a>
-                        <a href="{{ route('projects.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
-                            <i class="fas fa-folder w-5 text-center"></i> Proyek
-                        </a>
-                        <a href="{{ route('tasks.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
-                            <i class="fas fa-clipboard-list w-5 text-center"></i> Tugas
-                        </a>
-                        <a href="{{ route('activities.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
-                            <i class="fas fa-history w-5 text-center"></i> Riwayat
-                        </a>
-                        <a href="{{ route('friends.index') }}" class="flex items-center justify-between px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-user-friends w-5 text-center"></i> Teman
-                            </div>
-                            <div id="live-mobile-friends-badge">
-                                @if($pendingCount > 0)
-                                    <span class="bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $pendingCount }} Baru</span>
-                                @endif
-                            </div>
-                        </a>
-                        <a href="{{ route('notifications.index') }}" class="flex items-center justify-between px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-bell w-5 text-center"></i> Notifikasi
-                            </div>
-                            <div id="live-mobile-notifications-badge">
-                                @if($unreadCount > 0)
-                                    <span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $unreadCount }} Baru</span>
-                                @endif
-                            </div>
-                        </a>
-                        
-                        <div class="border-t border-gray-100 my-2"></div>
-                        
-                        <div class="flex items-center p-4 mb-4 bg-slate-50/80 backdrop-blur-sm rounded-2xl border border-gray-100/50 shadow-sm">
-                            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0">
-                                {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
-                            </div>
-                            <div class="ml-3 overflow-hidden flex-1">
-                                <p class="text-sm font-extrabold text-gray-900 truncate">
-                                    {{ Auth::user()->name }}
-                                </p>
-                                <p class="text-xs font-semibold text-gray-500 truncate mt-0.5">
-                                    {{ Auth::user()->email }}
-                                </p>
-                            </div>
-                        </div>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-500 hover:bg-rose-50 rounded-xl">
-                                <i class="fas fa-sign-out-alt w-5 text-center"></i> Keluar
-                            </button>
-                        </form>
-                    </nav>
+                <div id="live-mobile-friends-badge">
+                    @if($pendingCount > 0)
+                        <span class="bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $pendingCount }} Baru</span>
+                    @endif
                 </div>
-            </header>
+            </a>
+            <a href="{{ route('notifications.index') }}" class="flex items-center justify-between px-4 py-3 text-sm font-bold text-gray-600 hover:bg-blue-50 hover:text-[#1d61bd] rounded-xl">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-bell w-5 text-center"></i> Notifikasi
+                </div>
+                <div id="live-mobile-notifications-badge">
+                    @if($unreadCount > 0)
+                        <span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm">{{ $unreadCount }} Baru</span>
+                    @endif
+                </div>
+            </a>
+            
+            <div class="border-t border-gray-100 my-2"></div>
+            
+            <div class="flex items-center p-4 mb-4 bg-slate-50/80 backdrop-blur-sm rounded-2xl border border-gray-100/50 shadow-sm">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] flex items-center justify-center text-white font-bold text-sm shadow-sm flex-shrink-0">
+                    {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                </div>
+                <div class="ml-3 overflow-hidden flex-1">
+                    <p class="text-sm font-extrabold text-gray-900 truncate">
+                        {{ Auth::user()->name }}
+                    </p>
+                    <p class="text-xs font-semibold text-gray-500 truncate mt-0.5">
+                        {{ Auth::user()->email }}
+                    </p>
+                </div>
+            </div>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-500 hover:bg-rose-50 rounded-xl">
+                    <i class="fas fa-sign-out-alt w-5 text-center"></i> Keluar
+                </button>
+            </form>
+        </nav>
+    </div>
+</header>
             
             <main class="flex-1 overflow-y-auto p-6 md:p-10 relative">
                 @yield('content')

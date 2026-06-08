@@ -283,9 +283,9 @@
                             @error('comment')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
-                            <div class="mt-2 flex justify-end">
-                                <button type="submit" class="gradient-bg text-white px-6 py-2 rounded-xl font-semibold text-sm hover:opacity-90 transition shadow-md">
-                                    <i class="fas fa-paper-plane mr-2"></i>Kirim Pesan
+                            <div class="mt-3 flex justify-end">
+                                <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+                                    <i class="fas fa-paper-plane text-xs"></i> Kirim Pesan
                                 </button>
                             </div>
                         </div>

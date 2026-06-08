@@ -93,10 +93,13 @@
     <section class="hero-section">
         <div class="hero-content">
             <h1 class="hero-title">Bagi<br>Tugas</h1>
-            <div class="hero-action flex flex-col items-start mt-8 gap-5">
-                <p class="hero-subtitle">Klik Tugasnya<br>Gas Kerjanya.</p>
+            
+            <!-- Kuncinya di sini: buang flex-col, sisakan flex items-center agar sejajar menyamping -->
+            <div class="hero-action flex items-center mt-8 gap-6">
+                <p class="hero-subtitle mb-0 text-left">Klik Tugasnya<br>Gas Kerjanya.</p>
                 <a href="{{ route('login') }}" class="btn-main">Masuk</a>
             </div>
+            
         </div>
         <div class="hero-image">
             <img src="{{ asset('images/icon_UKL.png') }}" alt="Mascot" class="hero-mascot">
