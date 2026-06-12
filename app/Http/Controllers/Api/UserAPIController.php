@@ -8,9 +8,6 @@ use Illuminate\Http\Request;
 
 class UserAPIController extends Controller
 {
-    /**
-     * Menampilkan daftar semua user dalam format JSON
-     */
     public function index()
     {
         $users = User::all();
@@ -22,9 +19,6 @@ class UserAPIController extends Controller
         ], 200);
     }
 
-    /**
-     * Menampilkan detail satu user berdasarkan ID
-     */
     public function show($id)
     {
         $user = User::find($id);
@@ -41,5 +35,67 @@ class UserAPIController extends Controller
             'message' => 'Detail user berhasil diambil',
             'data' => $user
         ], 200);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6'
+        ]);
+
+        $user = User::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User berhasil dibuat',
+            'data' => $user
+        ], 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $id,
+            'password' => 'sometimes|min:6'
+        ]);
+
+        $user->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User berhasil diperbarui',
+            'data' => $user
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak ditemukan'
+            ], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'User berhasil dihapus'
+        ]);
     }
 }
