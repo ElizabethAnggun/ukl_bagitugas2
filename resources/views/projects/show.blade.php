@@ -207,7 +207,8 @@
                         @endforeach
                     </select>
                 </div>
-                <button type="submit" class="w-full gradient-bg text-white py-2 rounded-lg text-sm font-bold hover:opacity-90 transition shadow-sm">
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-[#1d61bd] to-[#0ea0d8] text-white py-2 rounded-lg text-sm font-bold hover:opacity-90 transition shadow-sm">
                     <i class="fas fa-plus-circle mr-1"></i>Tambah
                 </button>
             </form>
