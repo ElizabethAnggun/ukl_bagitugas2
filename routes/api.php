@@ -12,4 +12,4 @@ Route::apiResource('project', ProjectAPIController::class);
 Route::apiResource('users', UserAPIController::class);
 
 // Task API CRUD
-Route::apiResource('tasks', TaskAPIController::class);
+Route::apiResource('tasks', TaskApiController::class)->names('api.tasks');

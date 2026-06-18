@@ -8,15 +8,52 @@ use Illuminate\Http\Request;
 
 class TaskAPIController extends Controller
 {
-    public function index()
+    public function index() // Atau sesuaikan dengan nama fungsi aslimu
     {
-        $tasks = Task::with(['project', 'user'])->get();
+        $user = Auth::user();
+
+        // FILTER KETAT: Sama seperti di TaskController, wajib 'user_id'
+        $tasks = Task::where('user_id', $user->id)
+            ->with(['project', 'user'])
+            ->latest()
+            ->get();
+
+        // Hitung statistik HANYA berdasarkan tugas pribadi user
+        $stats = [
+            'total' => $tasks->count(),
+            'berjalan' => $tasks->where('status', 'berjalan')->count(),
+            'selesai' => $tasks->where('status', 'selesai')->count(),
+            'terlambat' => $tasks->filter->isLate()->count(),
+        ];
+
+        // Format data untuk dikirim ke JSON...
+        $formattedTasks = $tasks->map(function($task) {
+            return [
+                'id' => $task->id,
+                'title' => $task->title,
+                'project_name' => $task->project ? $task->project->name : 'Proyek Dihapus',
+                'project_id' => $task->project_id, // Pastikan ini tetap ada
+                'user_name' => $task->user->name,
+                'user_avatar' => substr($task->user->name, 0, 1),
+                'deadline' => $task->deadline->format('d M Y'),
+                'is_late' => $task->isLate(),
+                'status' => $task->status,
+                'status_label' => ucwords(str_replace('_', ' ', $task->status)),
+                'status_color' => $task->status == 'berjalan' ? 'text-blue-600 bg-blue-50' : ($task->status == 'selesai' ? 'text-emerald-600 bg-emerald-50' : 'text-gray-600 bg-gray-100'),
+                'can_change_status' => Auth::user()->can('changeStatus', $task),
+                'can_update' => Auth::user()->can('update', $task),
+                'can_delete' => Auth::user()->can('delete', $task),
+                'show_url' => route('tasks.show', $task->id),
+                'edit_url' => route('tasks.edit', $task->id),
+                'delete_url' => route('tasks.destroy', $task->id),
+                'csrf_token' => csrf_token(),
+            ];
+        });
 
         return response()->json([
-            'success' => true,
-            'message' => 'Daftar tugas berhasil diambil',
-            'data' => $tasks
-        ], 200);
+            'stats' => $stats,
+            'tasks' => $formattedTasks
+        ]);
     }
 
     public function show($id)

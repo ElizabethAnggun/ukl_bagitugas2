@@ -26,14 +26,13 @@ class TaskController extends Controller
     {
         $user = Auth::user();
         
-        // Menampilkan tugas yang ditugaskan ke user (termasuk dari owner lain)
-        // Dan menyembunyikan tugas yang diberikan user ke orang lain
+        // KUNCI UTAMA: Hanya ambil tugas yang ditugaskan kepada user yang sedang login
         $tasks = Task::where('user_id', $user->id)
             ->with(['project', 'user'])
             ->latest()
             ->get();
 
-        // Ambil semua proyek di mana user terlibat untuk filter
+        // Ambil proyek untuk keperluan dropdown/filter jika ada di halaman
         $projects = Project::where('user_id', $user->id)
             ->orWhereHas('tasks', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
@@ -43,7 +42,6 @@ class TaskController extends Controller
 
         return view('tasks.index', compact('tasks', 'projects'));
     }
-
     /**
      * Tampilkan form tambah tugas baru
      */
@@ -51,25 +49,26 @@ class TaskController extends Controller
     {
         $user = Auth::user();
         
-        // Ambil proyek di mana user terlibat (Owner atau yang ditugaskan di tugas apa pun dalam proyek tersebut)
-        $projects = Project::where('user_id', $user->id)
-            ->orWhereHas('tasks', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->distinct()
-            ->get();
-        
-        // Ambil daftar teman untuk autocomplete/pilihan
-        $friendIds = Friend::where(function($q) use ($user) {
-                $q->where('sender_id', $user->id)->orWhere('receiver_id', $user->id);
+        // Ambil proyek milik user yang login
+        $projects = Project::where('user_id', $user->id)->get();
+
+        // Ambil daftar teman menggunakan sender_id dan receiver_id sesuai tabelmu
+        $friends = Friend::where(function($query) use ($user) {
+                $query->where('sender_id', $user->id)
+                      ->orWhere('receiver_id', $user->id);
             })
             ->where('status', 'accepted')
             ->get()
-            ->map(function($f) use ($user) {
-                return $f->sender_id === $user->id ? $f->receiver_id : $f->sender_id;
-            });
+            ->map(function($friendship) use ($user) {
+                // Pastikan relasi di model Friend.php kamu juga menyesuaikan ya (sender/receiver)
+                // Jika error property not found, ganti ->receiver dan ->sender ke ->friend dan ->user sesuai nama relasimu.
+                return $friendship->sender_id === $user->id
+                    ? $friendship->receiver 
+                    : $friendship->sender;
+            })->filter(); // filter() untuk membuang nilai null jika ada data yang tidak sempurna
 
-        $friends = User::whereIn('id', $friendIds)->get();
+        // Masukkan akun sendiri (kevin kok vibecoding) ke pilihan paling atas
+        $friends->prepend($user);
 
         return view('tasks.create', compact('projects', 'friends'));
     }
@@ -96,21 +95,20 @@ class TaskController extends Controller
         $user = Auth::user();
         $assignee = User::where('email', $validated['email'])->first();
 
-        // 1. Otorisasi: Cek apakah user berhak menambah tugas di proyek ini (Owner atau Sub Pengelola)
+        // 1. Otorisasi
         $project = Project::find($validated['project_id']);
         if (!$project->isManager($user->id)) {
             return redirect()->back()->with('error', 'Hanya pemilik atau sub pengelola proyek yang dapat menambah tugas.');
         }
 
-        // 2. Validasi Pertemanan: Pastikan pembuat tugas dan penerima adalah teman (Accepted)
-        // Kecuali jika menugaskan ke diri sendiri
+        // 2. Validasi Pertemanan (Bypass jika assign ke diri sendiri)
         if ($assignee->id !== $user->id) {
             if (!$user->isFriendsWith($assignee->id)) {
                 return redirect()->back()->withInput()->with('error', 'Anda hanya dapat memberikan tugas kepada user yang sudah menjadi teman.');
             }
         }
 
-        // 3. Simpan tugas
+        // 3. Simpan tugas (Ini sudah berfungsi dengan baik)
         $task = Task::create([
             'title' => $validated['title'],
             'project_id' => $validated['project_id'],
@@ -119,8 +117,9 @@ class TaskController extends Controller
             'status' => $validated['status'],
         ]);
 
-        // 4. Kirim Notifikasi ke penerima tugas (jika bukan diri sendiri)
+        // 4. KUNCI PERBAIKAN: Logika Notifikasi yang Terpisah
         if ($assignee->id !== $user->id) {
+            // Jika untuk teman, kirim notifikasi penugasan
             Notification::create([
                 'user_id' => $assignee->id,
                 'title' => 'Tugas Baru Ditugaskan',
@@ -128,11 +127,21 @@ class TaskController extends Controller
                 'link' => route('tasks.show', $task->id),
                 'is_read' => false,
             ]);
+        } else {
+            // Jika untuk DIRI SENDIRI, tetap kirim notifikasi konfirmasi!
+            Notification::create([
+                'user_id' => $user->id,
+                'title' => 'Tugas Pribadi Berhasil Dibuat',
+                'message' => "Anda menugaskan diri sendiri untuk: \"{$task->title}\" di proyek \"{$project->name}\".",
+                'link' => route('tasks.show', $task->id),
+                'is_read' => false,
+            ]);
         }
 
-        return redirect()->route('tasks.index')->with('success', 'Tugas berhasil dibuat!');
+        // Opsional: Redirect langsung ke halaman detail proyek agar tugasnya langsung terlihat!
+        // Jika kamu ingin kembali ke daftar tugas, biarkan seperti semula: route('tasks.index')
+        return redirect()->route('projects.show', $project->id)->with('success', 'Tugas berhasil dibuat!');
     }
-
     /**
      * Tampilkan detail tugas
      */
@@ -161,29 +170,27 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
+        // Pastikan hanya owner project yang bisa edit tugas
         $this->authorize('update', $task);
 
         $user = Auth::user();
-        
-        // Ambil proyek di mana user terlibat (Owner atau yang ditugaskan di tugas apa pun dalam proyek tersebut)
-        $projects = Project::where('user_id', $user->id)
-            ->orWhereHas('tasks', function ($query) use ($user) {
-                $query->where('user_id', $user->id);
-            })
-            ->distinct()
-            ->get();
-            
-        // Ambil daftar teman
-        $friendIds = Friend::where(function($q) use ($user) {
-                $q->where('sender_id', $user->id)->orWhere('receiver_id', $user->id);
+        $projects = Project::where('user_id', $user->id)->get();
+
+        // Ambil daftar teman menggunakan sender_id dan receiver_id
+        $friends = Friend::where(function($query) use ($user) {
+                $query->where('sender_id', $user->id)
+                      ->orWhere('receiver_id', $user->id);
             })
             ->where('status', 'accepted')
             ->get()
-            ->map(function($f) use ($user) {
-                return $f->sender_id === $user->id ? $f->receiver_id : $f->sender_id;
-            });
+            ->map(function($friendship) use ($user) {
+                return $friendship->sender_id === $user->id
+                    ? $friendship->receiver
+                    : $friendship->sender;
+            })->filter();
 
-        $friends = User::whereIn('id', $friendIds)->get();
+        // Agar saat mengedit tugas, nama sendiri tetap muncul
+        $friends->prepend($user);
 
         return view('tasks.edit', compact('task', 'projects', 'friends'));
     }

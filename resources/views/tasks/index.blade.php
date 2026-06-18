@@ -3,13 +3,11 @@
 @section('title', 'Daftar Tugas')
 
 @section('content')
-<!-- Ambient Background Glow -->
 <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
     <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-400/20 rounded-full blur-[120px]"></div>
     <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-400/20 rounded-full blur-[120px]"></div>
 </div>
 
-<!-- Header Ultra-Modern -->
 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-10 relative z-10">
     <div>
         <h1 class="text-4xl md:text-4xl font-extrabold text-gray-900 tracking-tight pb-2 mb-1">
@@ -29,7 +27,6 @@
     </div>
 </div>
 
-<!-- Filter & Stats (Glassmorphism Cards) -->
 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 relative z-10">
     <div class="bg-white/80 backdrop-blur-xl rounded-[2rem] p-6 border border-white shadow-sm flex flex-col items-center justify-center hover:-translate-y-1 transition-transform duration-300">
         <p class="text-4xl font-extrabold text-gray-800 mb-1" id="live-total-tasks">{{ $tasks->count() }}</p>
@@ -49,7 +46,6 @@
     </div>
 </div>
 
-<!-- Tasks Table Modern -->
 <div class="bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-lg shadow-blue-900/5 border border-white/80 relative z-10 overflow-hidden">
     <div class="p-8 border-b border-gray-100/50 flex items-center justify-between bg-white/50">
         <h2 class="text-xl font-bold text-gray-800 flex items-center">
@@ -76,15 +72,20 @@
                     <tbody id="live-task-table-body">
                         @foreach($tasks as $task)
                         <tr class="bg-white hover:bg-blue-50/50 transition-colors duration-300 shadow-sm rounded-2xl group" id="task-row-{{ $task->id }}">
-                            <!-- Judul & Proyek -->
                             <td class="px-6 py-4 rounded-l-2xl">
                                 <p class="font-extrabold text-gray-900 text-base mb-1">{{ $task->title }}</p>
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-50/80 text-indigo-600 text-xs font-semibold border border-indigo-100">
-                                    <i class="fas fa-folder mr-1.5 opacity-70"></i> {{ $task->project->name }}
-                                </span>
+                                @if($task->project)
+                                    <span onclick="window.location.href='{{ route('projects.show', $task->project->id) }}'; event.stopPropagation();" 
+                                        class="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-50/80 text-indigo-600 hover:text-white hover:bg-indigo-600 cursor-pointer transition-colors text-xs font-semibold border border-indigo-100 relative z-20">
+                                        <i class="fas fa-folder mr-1.5 opacity-70"></i> {{ $task->project->name }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-gray-500 text-xs font-semibold border border-gray-200">
+                                        <i class="fas fa-folder mr-1.5 opacity-70"></i> Proyek Dihapus
+                                    </span>
+                                @endif
                             </td>
                             
-                            <!-- User -->
                             <td class="px-6 py-4">
                                 <div class="flex items-center">
                                     <div class="w-9 h-9 bg-gradient-to-br from-[#1d61bd] to-[#0ea0d8] rounded-full flex items-center justify-center mr-3 shadow-md">
@@ -94,7 +95,6 @@
                                 </div>
                             </td>
                             
-                            <!-- Deadline -->
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
                                     <span class="font-bold {{ $task->isLate() ? 'text-rose-600' : 'text-gray-600' }}">
@@ -108,7 +108,6 @@
                                 </div>
                             </td>
                             
-                            <!-- Status Dropdown/Pill -->
                             <td class="px-6 py-4">
                                 <div class="flex flex-col items-start">
                                     @can('changeStatus', $task)
@@ -126,9 +125,7 @@
                                 </div>
                             </td>
                             
-                            <!-- Action Buttons -->
                             <td class="px-6 py-4 rounded-r-2xl text-right">
-                                <!-- Opacity diubah agar tombol selalu tampil -->
                                 <div class="flex items-center justify-end space-x-2">
                                     <a href="{{ route('tasks.show', $task) }}" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white hover:shadow-lg hover:shadow-blue-200 transition-all" title="Detail & Diskusi">
                                         <i class="fas fa-comment-dots"></i>
@@ -157,7 +154,6 @@
                 </table>
             </div>
         @else
-            <!-- Empty State Ultra Modern -->
             <div class="relative w-full max-w-2xl mx-auto my-12 bg-gray-50/50 rounded-[3rem] p-16 text-center border border-dashed border-gray-200 overflow-hidden">
                 <div class="relative z-10">
                     <div class="w-32 h-32 mx-auto mb-8 relative">
@@ -197,11 +193,9 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update class warna pada select
                 const select = document.querySelector(`#task-row-${taskId} .status-select`);
                 select.className = `status-select px-4 py-2 rounded-xl text-xs font-bold border border-transparent hover:border-gray-200 cursor-pointer shadow-sm transition-all outline-none focus:ring-2 focus:ring-blue-500 ${data.status_color}`;
                 
-                // Tampilkan notifikasi sukses
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil!',
@@ -210,7 +204,6 @@
                     showConfirmButton: false
                 });
                 
-                // Refresh halaman setelah 1.5 detik untuk update statistik
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -233,7 +226,6 @@
         fetch('{{ route('live.tasks_list') }}')
             .then(response => response.json())
             .then(data => {
-                // Update Statistik
                 if (data.stats) {
                     document.getElementById('live-total-tasks').innerText = data.stats.total;
                     document.getElementById('live-running-tasks').innerText = data.stats.berjalan;
@@ -246,7 +238,6 @@
                 const existingTaskIds = new Set();
 
                 if (data.tasks.length > 0) {
-                    // Jika sebelumnya kosong, buat struktur tabel
                     if (!tableBody) {
                         container.innerHTML = `
                             <div class="overflow-x-auto">
@@ -273,7 +264,6 @@
                         let row = document.getElementById(`task-row-${task.id}`);
                         
                         if (row) {
-                            // Update Status
                             const select = row.querySelector('.status-select');
                             const badge = row.querySelector('span.rounded-xl');
                             
@@ -285,7 +275,6 @@
                                 badge.innerText = task.status_label;
                             }
 
-                            // Update Deadline & Late Info
                             const deadlineCell = row.cells[2];
                             const lateText = task.is_late ? 'text-rose-600' : 'text-gray-600';
                             let lateBadgeHtml = '';
@@ -306,7 +295,6 @@
                                 </div>
                             `;
                         } else {
-                            // Tambah Baris Baru
                             const newRow = document.createElement('tr');
                             newRow.className = 'bg-white hover:bg-blue-50/50 transition-colors duration-300 shadow-sm rounded-2xl group';
                             newRow.id = `task-row-${task.id}`;
@@ -362,12 +350,18 @@
                                 actionsHtml += '<span class="text-[10px] text-gray-400 font-semibold uppercase tracking-wider block mt-2 text-right">Read Only</span>';
                             }
 
+                            // --- KUNCI PERBAIKAN JS: Pindahkan logika HTML ke variabel agar lebih aman ---
+                            let projectSpanHtml = '';
+                            if (task.project_name !== 'Proyek Dihapus' && task.project_id) {
+                                projectSpanHtml = `<span onclick="window.location.href='/projects/${task.project_id}'; event.stopPropagation();" class="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-50/80 text-indigo-600 hover:text-white hover:bg-indigo-600 cursor-pointer transition-colors text-xs font-semibold border border-indigo-100 relative z-20"><i class="fas fa-folder mr-1.5 opacity-70"></i> ${task.project_name}</span>`;
+                            } else {
+                                projectSpanHtml = `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-gray-500 text-xs font-semibold border border-gray-200"><i class="fas fa-folder mr-1.5 opacity-70"></i> Proyek Dihapus</span>`;
+                            }
+
                             newRow.innerHTML = `
                                 <td class="px-6 py-4 rounded-l-2xl">
                                     <p class="font-extrabold text-gray-900 text-base mb-1">${task.title}</p>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-50/80 text-indigo-600 text-xs font-semibold border border-indigo-100">
-                                        <i class="fas fa-folder mr-1.5 opacity-70"></i> ${task.project_name}
-                                    </span>
+                                    ${projectSpanHtml}
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center">
@@ -398,7 +392,6 @@
                         }
                     });
 
-                    // Hapus baris yang sudah tidak ada
                     const rows = currentTableBody.querySelectorAll('tr[id^="task-row-"]');
                     rows.forEach(row => {
                         const id = parseInt(row.id.replace('task-row-', ''));
@@ -407,7 +400,6 @@
                         }
                     });
                 } else {
-                    // Tampilkan Empty State jika tidak ada tugas
                     container.innerHTML = `
                         <div class="relative w-full max-w-2xl mx-auto my-12 bg-gray-50/50 rounded-[3rem] p-16 text-center border border-dashed border-gray-200 overflow-hidden">
                             <div class="relative z-10">
@@ -430,8 +422,7 @@
             .catch(error => console.error('Error fetching live tasks:', error));
     }
 
-    // Jalankan polling setiap 5 detik
     setInterval(updateTasksLive, 5000);
- </script>
+</script>
 @endpush
 @endsection

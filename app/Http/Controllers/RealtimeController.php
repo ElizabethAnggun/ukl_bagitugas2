@@ -159,19 +159,10 @@ class RealtimeController extends Controller
     public function tasksLive()
     {
         $user = Auth::user();
-        
-        // Ambil semua tugas yang bisa dilihat user
-        // Mirip dengan logika di TaskController@index
-        $tasks = Task::with(['project', 'user'])
-            ->where(function ($query) use ($user) {
-                $query->where('user_id', $user->id)
-                      ->orWhereHas('project', function ($q) use ($user) {
-                          $q->where('user_id', $user->id)
-                            ->orWhereHas('managers', function ($qm) use ($user) {
-                                $qm->where('user_id', $user->id);
-                            });
-                      });
-            })
+
+        // KUNCI PERBAIKAN: Tambahkan where('user_id', $user->id)
+        $tasks = Task::where('user_id', $user->id)
+            ->with(['project', 'user']) // Pastikan relasinya tetap dipanggil
             ->latest()
             ->get();
 
